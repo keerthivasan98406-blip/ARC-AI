@@ -1,0 +1,23 @@
+services:
+  # Backend API Server
+  - type: web
+    name: arc-ai-backend
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && node index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 10000
+
+  # Frontend Static Site
+  - type: web
+    name: arc-ai-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

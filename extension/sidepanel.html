@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arc AI Assistant</title>
+  <style>
+    /* ── Reset & Base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b101e;
+      --bg2:       #0f1428;
+      --bg3:       #161d35;
+      --border:    rgba(139,92,246,0.35);
+      --border2:   rgba(255,255,255,0.08);
+      --purple:    #7c3aed;
+      --cyan:      #06b6d4;
+      --text:      #f1f5f9;
+      --text-muted:#94a3b8;
+      --text-dim:  #475569;
+      --error:     #ef4444;
+      --success:   #10b981;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 13px;
+      overflow: hidden;
+    }
+
+    /* ── Layout ────────────────────────────────────────────────────────── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────────── */
+    #header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border2);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #fff; flex-shrink: 0;
+    }
+
+    .title { flex: 1; }
+    .title h1 { font-size: 13px; font-weight: 700; color: #fff; }
+    .title p  { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+    #status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    #status-dot.online  { background: var(--success); box-shadow: 0 0 6px rgba(16,185,129,0.7); animation: blink 2s infinite; }
+    #status-dot.error   { background: var(--error); }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    .icon-btn {
+      width: 26px; height: 26px;
+      border-radius: 7px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border2);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    /* ── Model selector ────────────────────────────────────────────────── */
+    #model-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border2);
+      flex-shrink: 0;
+    }
+
+    #model-bar label { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+
+    #model-select {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      border-radius: 7px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ── Messages ──────────────────────────────────────────────────────── */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-track { background: transparent; }
+    #messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 24px 16px;
+      text-align: center;
+    }
+
+    .empty-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: rgba(124,58,237,0.18);
+      border: 1px solid rgba(124,58,237,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+
+    .empty-state h2 { font-size: 13px; color: #fff; }
+    .empty-state p  { font-size: 11px; color: var(--text-dim); }
+
+    /* ── Message bubble ────────────────────────────────────────────────── */
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      animation: fadeUp 0.2s ease;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+    .avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .avatar.user { background: linear-gradient(135deg, var(--purple), var(--cyan)); color: #fff; }
+    .avatar.ai   { background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3); color: #67e8f9; }
+
+    .bubble-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-width: 84%;
+    }
+    .msg-row.user .bubble-wrap { align-items: flex-end; }
+
+    .bubble {
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+    .bubble.user {
+      background: linear-gradient(135deg, rgba(124,58,237,0.45), rgba(6,182,212,0.25));
+      border: 1px solid rgba(124,58,237,0.3);
+      color: #fff;
+      border-top-right-radius: 4px;
+    }
+    .bubble.ai {
+      background: rgba(30,41,59,0.8);
+      border: 1px solid var(--border2);
+      color: #e2e8f0;
+      border-top-left-radius: 4px;
+    }
+
+    .bubble img.attached {
+      max-height: 140px;
+      border-radius: 8px;
+      border: 1px solid rgba(6,182,212,0.3);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .bubble img.md-img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin: 8px 0;
+      border: 1px solid rgba(6,182,212,0.3);
+      display: block;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .dean-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(6,182,212,0.3);
+      background: rgba(15,23,42,0.7);
+      backdrop-filter: blur(8px);
+    }
+    .dean-card-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .dean-card-img {
+      width: 70px;
+      height: 85px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid rgba(6,182,212,0.5);
+      box-shadow: 0 0 14px rgba(6,182,212,0.3);
+      flex-shrink: 0;
+    }
+    .dean-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #67e8f9;
+    }
+    .dean-card-role {
+      font-size: 11px;
+      font-weight: 600;
+      color: #c084fc;
+      margin-top: 2px;
+    }
+    .dean-card-info {
+      font-size: 11px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    /* Markdown inside bubbles */
+    .bubble strong { color: #fff; }
+    .bubble code {
+      background: rgba(0,0,0,0.4);
+      color: #67e8f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+    }
+    .bubble pre {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 10px;
+      overflow-x: auto;
+      margin: 6px 0;
+    }
+    .bubble pre code {
+      background: none;
+      color: #e2e8f0;
+      padding: 0;
+      font-size: 11px;
+    }
+    .bubble ul, .bubble ol { padding-left: 18px; margin: 4px 0; }
+    .bubble li { margin: 2px 0; }
+    .bubble h1,.bubble h2,.bubble h3 { color: #fff; margin: 6px 0 3px; }
+    .bubble a { color: #67e8f9; }
+    .bubble p { margin-bottom: 5px; }
+    .bubble p:last-child { margin-bottom: 0; }
+
+    .copy-btn {
+      font-size: 10px;
+      color: var(--text-dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex; align-items: center; gap: 4px;
+      transition: color 0.15s;
+    }
+    .copy-btn:hover { color: var(--text-muted); }
+
+    /* ── Typing dots ───────────────────────────────────────────────────── */
+    .typing-dots {
+      display: flex;
+      gap: 5px;
+      padding: 10px 14px;
+      background: rgba(30,41,59,0.8);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      border-top-left-radius: 4px;
+      width: fit-content;
+    }
+    .typing-dots span {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: dot 1.2s ease-in-out infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot { 0%,60%,100%{transform:scale(1);opacity:0.5} 30%{transform:scale(1.3);opacity:1} }
+
+    /* ── Image preview bar ─────────────────────────────────────────────── */
+    #image-preview-bar {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border2);
+      flex-shrink: 0;
+    }
+    #image-preview-bar.visible { display: flex; }
+
+    #img-thumb {
+      width: 40px; height: 40px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid rgba(6,182,212,0.35);
+    }
+    #img-label { font-size: 10px; color: #67e8f9; flex: 1; }
+    #img-remove {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--error);
+      border: none; color: #fff;
+      font-size: 9px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Error banner ──────────────────────────────────────────────────── */
+    #error-banner {
+      display: none;
+      margin: 0 12px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      font-size: 11px;
+      color: #fca5a5;
+      flex-shrink: 0;
+    }
+    #error-banner.visible { display: block; }
+
+    /* ── Input area ────────────────────────────────────────────────────── */
+    #input-area {
+      padding: 8px 12px 10px;
+      border-top: 1px solid var(--border2);
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+
+    #input-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      padding: 6px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(139,92,246,0.35);
+      background: var(--bg3);
+      transition: border-color 0.2s;
+    }
+    #input-wrap:focus-within { border-color: rgba(6,182,212,0.5); }
+
+    #msg-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 12px;
+      resize: none;
+      max-height: 90px;
+      overflow-y: auto;
+      outline: none;
+      line-height: 1.5;
+      padding: 3px 0;
+    }
+    #msg-input::placeholder { color: var(--text-dim); }
+
+    .send-btn {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      border: none;
+      color: #fff;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      align-self: flex-end;
+      flex-shrink: 0;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .send-btn:not(:disabled):hover { transform: scale(1.08); }
+
+    .stop-btn {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: #f87171;
+      font-size: 10px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      align-self: flex-end;
+      flex-shrink: 0;
+    }
+
+    #hint {
+      text-align: center;
+      font-size: 9px;
+      color: var(--text-dim);
+      margin-top: 5px;
+    }
+
+    /* ── Backend config notice ─────────────────────────────────────────── */
+    #backend-notice {
+      margin: 8px 12px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.25);
+      font-size: 10px;
+      color: rgba(253,230,138,0.85);
+      flex-shrink: 0;
+    }
+    #backend-notice a { color: #fcd34d; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div id="header">
+    <div class="logo">🤖</div>
+    <div class="title">
+      <h1>Arc AI Assistant</h1>
+      <p id="status-text">Connecting…</p>
+    </div>
+    <div id="status-dot"></div>
+    <button class="icon-btn" id="btn-clear" title="Clear chat">🗑</button>
+    <button class="icon-btn" id="btn-new"   title="New chat">＋</button>
+  </div>
+
+  <!-- Model selector -->
+  <div id="model-bar">
+    <label>Model:</label>
+    <select id="model-select">
+      <option value="claude-3-5" selected>Claude 3.5 (Recommended)</option>
+      <option value="gpt-5">GPT-5 (Qwen 3.7 Plus)</option>
+      <option value="gemini-1-5">Gemini 1.5 Pro (Vision)</option>
+      <option value="deepseek-r1">DeepSeek R1</option>
+      <option value="llama-3-3">Llama 3.3</option>
+    </select>
+  </div>
+
+  <!-- Backend notice -->
+  <div id="backend-notice">
+    ⚡ <b>Extension Mode</b> — calls your local Arc AI backend at
+    <a href="#" onclick="return false">localhost:5000</a>.
+    Run <code>npm run dev:all</code> in the project folder to start the backend.
+  </div>
+
+  <!-- Error banner -->
+  <div id="error-banner"></div>
+
+  <!-- Messages -->
+  <div id="messages">
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">🤖</div>
+      <h2>Arc AI — Extension Mode</h2>
+      <p>Available on every Chrome tab.<br/>Backend must be running on localhost:5000.</p>
+    </div>
+  </div>
+
+  <!-- Image preview -->
+  <div id="image-preview-bar">
+    <img id="img-thumb" src="" alt="preview" />
+    <span id="img-label">Image attached — Gemini vision</span>
+    <button id="img-remove">✕</button>
+  </div>
+
+  <!-- Input -->
+  <div id="input-area">
+    <div id="input-wrap">
+      <button class="icon-btn" id="btn-attach" title="Attach image" style="align-self:flex-end;margin-bottom:1px;">📎</button>
+      <input type="file" id="file-input" accept="image/*" style="display:none" />
+      <textarea id="msg-input" rows="1" placeholder="Ask anything… (Enter to send)"></textarea>
+      <button class="send-btn" id="btn-send" disabled>↑</button>
+    </div>
+    <div id="hint">Shift+Enter for new line · Paste images · Extension Mode Active</div>
+  </div>
+
+</div>
+
+<script src="sidepanel.js"></script>
+</body>
+</html>

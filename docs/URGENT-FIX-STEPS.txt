@@ -1,0 +1,75 @@
+╔════════════════════════════════════════════════════════════════╗
+║                    URGENT FIX STEPS                           ║
+╚════════════════════════════════════════════════════════════════╝
+
+YOUR SERVICES:
+- Backend (Node): leonuxAI-2 → https://leonuxai-2.onrender.com
+- Frontend (Static): leonuxAI-3 → https://leonuxai-3.onrender.com
+
+═══════════════════════════════════════════════════════════════
+
+PROBLEM 1: INVALID API KEY (CRITICAL!)
+───────────────────────────────────────────────────────────────
+Your OpenRouter API key is returning 401 - User not found.
+
+FIX:
+1. Go to https://openrouter.ai/
+2. Sign in and get a NEW API key
+3. Go to Render dashboard
+4. Click "leonuxAI-2" (backend)
+5. Click "Environment" tab
+6. Update OPENROUTER_API_KEY with new key
+7. Save (auto-redeploys)
+
+═══════════════════════════════════════════════════════════════
+
+PROBLEM 2: FRONTEND ENVIRONMENT VARIABLE
+───────────────────────────────────────────────────────────────
+Frontend needs to know where backend is.
+
+FIX:
+1. Go to Render dashboard
+2. Click "leonuxAI-3" (frontend)
+3. Click "Environment" tab
+4. Add or update:
+   Key: VITE_API_URL
+   Value: https://leonuxai-2.onrender.com/api
+5. Click "Save Changes"
+6. Click "Manual Deploy" → "Deploy latest commit"
+
+═══════════════════════════════════════════════════════════════
+
+PROBLEM 3: PUSH UPDATED render.yaml
+───────────────────────────────────────────────────────────────
+I updated render.yaml to match your actual service names.
+
+FIX:
+Run these commands:
+  git add render.yaml
+  git commit -m "Update service names to match Render"
+  git push
+
+═══════════════════════════════════════════════════════════════
+
+TESTING AFTER FIX
+───────────────────────────────────────────────────────────────
+1. Wait 3-5 minutes for both services to redeploy
+2. Test backend: https://leonuxai-2.onrender.com/api/health
+   Should show: {"status":"OK",...}
+3. Open frontend: https://leonuxai-3.onrender.com
+4. Hard refresh: Ctrl + Shift + R
+5. Send a message
+6. Should work!
+
+═══════════════════════════════════════════════════════════════
+
+PRIORITY ORDER
+───────────────────────────────────────────────────────────────
+1. GET NEW API KEY (most important!)
+2. Update frontend environment variable
+3. Push render.yaml changes
+4. Test
+
+═══════════════════════════════════════════════════════════════
+
+The main blocker is the invalid API key. Everything else is ready!

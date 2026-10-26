@@ -1,0 +1,8 @@
+{
+  "name": "Arc AI OS",
+  "description": "Next-Generation Production Glassmorphic AI Assistant with Multi-Engine Reasoning, Multimodal Vision, Document Intelligence, Image Studio & Web Intelligence.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

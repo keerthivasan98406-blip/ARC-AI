@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Pages Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .status {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #10b981;
+        }
+        .error {
+            background: #ef4444;
+        }
+        .warning {
+            background: #f59e0b;
+        }
+        h1 {
+            color: #10b981;
+        }
+        a {
+            color: #60a5fa;
+        }
+        code {
+            background: #374151;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>✅ GitHub Pages is Working!</h1>
+    
+    <div class="status success">
+        <h2>If you can see this page, GitHub Pages is enabled!</h2>
+        <p>This means the deployment infrastructure is working.</p>
+    </div>
+
+    <div class="status warning">
+        <h2>⚠️ But your main site shows 404?</h2>
+        <p>This means the GitHub Actions workflow needs to run.</p>
+    </div>
+
+    <h2>Next Steps:</h2>
+    <ol>
+        <li>Go to: <a href="https://github.com/keerthivasan98406-blip/leonuxAI/actions" target="_blank">GitHub Actions</a></li>
+        <li>Check if the workflow ran successfully (green checkmark)</li>
+        <li>If it failed (red X), click on it to see the error</li>
+        <li>If it hasn't run yet, push a new commit to trigger it</li>
+    </ol>
+
+    <h2>Common Issues:</h2>
+    <ul>
+        <li><strong>Workflow failed:</strong> Check if you added the <code>VITE_OPENROUTER_API_KEY</code> secret</li>
+        <li><strong>Workflow not running:</strong> Make sure GitHub Pages source is set to "GitHub Actions"</li>
+        <li><strong>Still 404:</strong> Wait 5 minutes after workflow completes</li>
+    </ul>
+
+    <div class="status error">
+        <h2>❌ Can't see this page?</h2>
+        <p>GitHub Pages is NOT enabled. Go to:</p>
+        <p><a href="https://github.com/keerthivasan98406-blip/leonuxAI/settings/pages" target="_blank">Repository Settings → Pages</a></p>
+        <p>Select "GitHub Actions" as source and save.</p>
+    </div>
+
+    <hr>
+    <p><small>Test file created: <script>document.write(new Date().toLocaleString())</script></small></p>
+</body>
+</html>

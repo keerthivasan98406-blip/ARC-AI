@@ -1,0 +1,83 @@
+/* ============================================================
+   Responsive Sidebar Icon System
+   - Stroke-based, vector SVG icons
+   - Scales cleanly from 16px to 48px
+   - 3 responsive breakpoints: mobile / tablet / desktop
+   ============================================================ */
+
+/* ── Icon base ── */
+.sidebar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: currentColor;
+}
+
+.sidebar-icon svg {
+  display: block;
+  overflow: visible;
+}
+
+/* ── Responsive icon sizes ── */
+.icon-sm  { width: 14px; height: 14px; }  /* list items */
+.icon-md  { width: 18px; height: 18px; }  /* grid tiles */
+.icon-lg  { width: 22px; height: 22px; }  /* footer buttons */
+.icon-xl  { width: 28px; height: 28px; }  /* sidebar header */
+
+/* ── Breakpoint-specific scaling ── */
+@media (max-width: 640px) {
+  .sidebar-icon { width: 13px; height: 13px; }
+  .icon-lg { width: 18px; height: 18px; }
+  .icon-xl { width: 22px; height: 22px; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .sidebar-icon { width: 16px; height: 16px; }
+  .icon-lg { width: 20px; height: 20px; }
+  .icon-xl { width: 24px; height: 24px; }
+}
+
+@media (min-width: 1025px) {
+  .sidebar-icon { width: 18px; height: 18px; }
+  .icon-lg { width: 22px; height: 22px; }
+  .icon-xl { width: 28px; height: 28px; }
+}
+
+/* ── SVG stroke tokens ── */
+.icon-stroke-1 { stroke-width: 1.5; }
+.icon-stroke-2 { stroke-width: 2; }
+.icon-fill-none { fill: none; }
+
+/* ── Hover states ── */
+.icon-hover-scale:hover svg { transform: scale(1.12); transform-origin: center; }
+.icon-hover-rotate:hover svg { transform: rotate(-8deg) scale(1.1); transform-origin: center; }
+.icon-hover-glow:hover {
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+/* ── Active / selected state ── */
+.icon-active {
+  color: var(--neon-red);
+  filter: drop-shadow(0 0 5px var(--neon-red-glow));
+}
+.icon-active svg { transform: scale(1.08); }
+
+/* ── Disabled state ── */
+.icon-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-icon,
+  .sidebar-icon svg,
+  .icon-hover-scale:hover svg,
+  .icon-hover-rotate:hover svg {
+    transition: none;
+    transform: none;
+    animation: none;
+  }
+}

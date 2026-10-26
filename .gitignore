@@ -1,0 +1,55 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment variables (IMPORTANT: Keep API keys secure!)
+.env
+.env.local
+.env.production
+server/.env
+
+# Separate projects & local scratch
+plant-disease-detector/
+deean image/
+models_response.json
+*.bat
+desktop.ini
+
+# Files containing API keys / secrets
+docs/API-KEY-SECURITY-FIX.md
+docs/CHECK-API-KEY-STATUS.md
+docs/UPDATE-RENDER-API-KEY.md
+docs/API-KEY-ISSUE.md
+docs/DEPLOYMENT-STATUS.md
+docs/RENDER-DEPLOYMENT-GUIDE.md
+docs/CHECK-THIS-NOW.md
+tests/test-groq.cjs
+tests/test-groq.js
+tests/test-keys.cjs
+tests/test-fast-groq.cjs
+tests/test-groq-speed.cjs
+tests/test-user-key.cjs
+tests/test-vision.cjs
+tests/test-takshashila.cjs
+server/test-key.js
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

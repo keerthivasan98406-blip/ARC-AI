@@ -641,6 +641,7 @@
       <div id="arc-input-area">
         <div id="arc-input-box">
           <textarea id="arc-textarea" rows="1" placeholder="Ask anything or hit Alt+S/Alt+X to snap questions…"></textarea>
+          <button id="arc-paste-btn" title="Paste from clipboard (works even on LMS portals)" style="width:28px;height:28px;border-radius:8px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#a5b4fc;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.1s,opacity 0.15s;">📋</button>
           <button id="arc-stop-btn" title="Stop generating">⏹</button>
           <button id="arc-send-btn" title="Send message (Enter)">↑</button>
         </div>
@@ -671,6 +672,7 @@
   const $textarea     = shadow.getElementById('arc-textarea');
   const $sendBtn      = shadow.getElementById('arc-send-btn');
   const $stopBtn      = shadow.getElementById('arc-stop-btn');
+  const $pasteBtn     = shadow.getElementById('arc-paste-btn');
   const $toast        = shadow.getElementById('arc-toast');
   const $onlineDot    = shadow.getElementById('arc-online-dot');
   const $attachBar    = shadow.getElementById('arc-attach-bar');
@@ -1205,10 +1207,50 @@
   });
 
   // ── 16. Textarea & Sending Event Isolation (LMS anti-cheat cannot block) ───
-  // Stop keydown and keyup from bubbling to LMS page listeners!
-  $panel.addEventListener('keydown', (e) => { e.stopPropagation(); });
-  $panel.addEventListener('keyup', (e) => { e.stopPropagation(); });
-  $panel.addEventListener('keypress', (e) => { e.stopPropagation(); });
+  // Stop keydown, keyup, paste from bubbling to LMS page listeners — capture phase!
+  $panel.addEventListener('keydown',  (e) => { e.stopPropagation(); }, true);
+  $panel.addEventListener('keyup',    (e) => { e.stopPropagation(); }, true);
+  $panel.addEventListener('keypress', (e) => { e.stopPropagation(); }, true);
+  $panel.addEventListener('paste',    (e) => { e.stopPropagation(); }, true);
+
+  // ── CLIPBOARD PASTE FIX for LMS portals that block Ctrl+V ─────────────────
+  // When user presses Ctrl+V inside the textarea, read clipboard directly via
+  // navigator.clipboard API (extension has clipboardRead permission) and insert
+  // the text manually — this bypasses ALL LMS paste event blockers.
+  async function pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) return;
+      const start = $textarea.selectionStart;
+      const end   = $textarea.selectionEnd;
+      const before = $textarea.value.substring(0, start);
+      const after  = $textarea.value.substring(end);
+      $textarea.value = before + text + after;
+      $textarea.selectionStart = $textarea.selectionEnd = start + text.length;
+      $textarea.style.height = 'auto';
+      $textarea.style.height = Math.min($textarea.scrollHeight, 84) + 'px';
+      updateSendBtnState();
+      showToast('📋 Pasted!', 1000);
+    } catch (err) {
+      // Clipboard API failed — show a helpful fallback toast
+      showToast('⚠️ Paste blocked by browser. Use the 📋 Paste button.', 3000);
+    }
+  }
+
+  // Intercept Ctrl+V / Cmd+V on the textarea before LMS can block it
+  $textarea.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+      e.preventDefault();
+      e.stopPropagation();
+      pasteFromClipboard();
+    }
+  }, true);
+
+  // Also handle the native paste event — stopPropagation so LMS can't cancel it
+  $textarea.addEventListener('paste', (e) => {
+    e.stopPropagation();
+    setTimeout(updateSendBtnState, 30);
+  }, true);
 
   function updateSendBtnState() {
     const hasContent = !!$textarea.value.trim() || !!attachedImageB64;
@@ -1239,6 +1281,16 @@
     e.stopPropagation();
     sendMessage();
   });
+
+  // Paste button — clipboard read that bypasses LMS paste blockers
+  if ($pasteBtn) {
+    $pasteBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      pasteFromClipboard();
+      $textarea.focus();
+    });
+  }
 
   // ── 17. Markdown & Custom Card Renderer ────────────────────────────────────
   function escapeHtml(str) {

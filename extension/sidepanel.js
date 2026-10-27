@@ -392,7 +392,7 @@ async function sendMessage() {
     appendBubble('ai', errText);
     saveHistory();
     if (isNetworkErr) {
-      showError('Backend unreachable. Is npm run dev:all running?');
+      showError('Render backend unreachable — it may be waking up. Wait 20s and retry.');
       checkBackend();
     }
   }

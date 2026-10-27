@@ -1438,7 +1438,7 @@
       } catch (_) {}
     }
 
-    aiBubble.innerHTML = `<span style="color:#f87171;">⚠️ Arc AI could not reach the AI engine. Please ensure <code>npm run dev:all</code> is running in your Arc AI terminal, or click Reload Extension in chrome://extensions.</span>`;
+    aiBubble.innerHTML = `<span style="color:#f87171;">⚠️ Arc AI backend is temporarily unreachable. The Render server may be waking up — please wait 20–30 seconds and try again.</span>`;
     cleanupStream();
   }
 
@@ -1560,7 +1560,7 @@
         }
         if (!receivedAnyData) {
           // Extension port failed or background service worker slept -> fallback to direct fetch!
-          console.log('[Arc AI] Port disconnected. Falling back to direct localhost fetch...');
+          console.log('[Arc AI] Port disconnected. Falling back to direct Render backend fetch...');
           sendDirectToBackend(chatPayload, aiBubble);
         } else {
           cleanupStream();

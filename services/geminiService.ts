@@ -235,9 +235,10 @@ ${userContext}`;
     ];
   }
 
-  // Route requests through API proxy with fallback to direct localhost:5000
+  // Route requests through API proxy with fallback to Render backend
   const candidateUrls = [
     `${API_URL}/chat`,
+    'https://arc-ai-l0x5.onrender.com/api/chat',
     'http://localhost:5000/api/chat',
     'http://127.0.0.1:5000/api/chat'
   ];

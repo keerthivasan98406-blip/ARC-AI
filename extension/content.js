@@ -1511,6 +1511,12 @@
     }, 15000);
 
     try {
+      // Check extension context is still valid before connecting
+      if (!chrome.runtime?.id) {
+        console.warn('[Arc AI] Extension context invalidated. Falling back to direct fetch.');
+        sendDirectToBackend(chatPayload, aiBubble);
+        return;
+      }
       activePort = chrome.runtime.connect({ name: 'arc_ai_stream' });
 
       activePort.onMessage.addListener((msg) => {
@@ -1585,7 +1591,9 @@
 
       activePort.postMessage(chatPayload);
     } catch (connectErr) {
-      console.warn('[Arc AI] Port connect error, falling back to direct fetch:', connectErr);
+      if (!connectErr.message?.includes('Extension context invalidated')) {
+        console.warn('[Arc AI] Port connect error, falling back to direct fetch:', connectErr);
+      }
       sendDirectToBackend(chatPayload, aiBubble);
     }
   }

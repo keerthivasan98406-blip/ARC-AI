@@ -8,31 +8,37 @@
   window.__ARC_SHIELD_ACTIVE__ = true;
 
   // A. Force CSS text selection everywhere on the LMS / portal
+  // Uses CSSStyleSheet API to avoid CSP inline-style violations
   function applySelectionStyles() {
     try {
-      let style = document.getElementById('arc-force-copy-style');
-      if (!style) {
-        style = document.createElement('style');
-        style.id = 'arc-force-copy-style';
-        style.textContent = `
-          *, *::before, *::after, html, body, div, p, span, h1, h2, h3, h4, h5, h6, table, tr, td, th, pre, code, li, a, label, form, input, textarea {
-            -webkit-user-select: text !important;
-            -moz-user-select: text !important;
-            -ms-user-select: text !important;
-            user-select: text !important;
-            -webkit-touch-callout: default !important;
-            pointer-events: auto !important;
-          }
-          ::selection {
-            background: rgba(56, 189, 248, 0.45) !important;
-            color: inherit !important;
-          }
-          ::-moz-selection {
-            background: rgba(56, 189, 248, 0.45) !important;
-            color: inherit !important;
-          }
-        `;
-        (document.head || document.documentElement).appendChild(style);
+      // Try modern adoptedStyleSheets first (no CSP violation)
+      if (document.adoptedStyleSheets !== undefined) {
+        if (!window.__arcSheet) {
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(`
+            *, *::before, *::after, html, body, div, p, span,
+            h1, h2, h3, h4, h5, h6, table, tr, td, th,
+            pre, code, li, a, label, form, input, textarea {
+              -webkit-user-select: text !important;
+              -moz-user-select: text !important;
+              -ms-user-select: text !important;
+              user-select: text !important;
+              pointer-events: auto !important;
+            }
+          `);
+          document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+          window.__arcSheet = sheet;
+        }
+        return;
+      }
+    } catch (_) {}
+
+    // Fallback: set inline style on body directly (no <style> tag needed)
+    try {
+      if (document.body) {
+        document.body.style.setProperty('-webkit-user-select', 'text', 'important');
+        document.body.style.setProperty('-moz-user-select', 'text', 'important');
+        document.body.style.setProperty('user-select', 'text', 'important');
       }
     } catch (_) {}
   }

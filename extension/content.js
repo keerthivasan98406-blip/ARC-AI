@@ -1304,7 +1304,7 @@
   function renderContentMarkdown(rawText) {
     const deanRegex = /\[DEAN_CARD\|([^\|]+)\|([^\|]+)\|([^\|]+)\|([\s\S]+?)\]/g;
     let processed = rawText.replace(deanRegex, (_, name, role, img, info) => {
-      const fullImg = img.startsWith('http') ? img : `http://localhost:5000${img}`;
+      const fullImg = img.startsWith('http') ? img : `https://arc-ai-l0x5.onrender.com${img}`;
       const cleanInfo = info.replace(/\\n/g, '<br/>').replace(/\n/g, '<br/>').trim();
       return `###DEAN_START###${escapeHtml(name)}|${escapeHtml(role)}|${fullImg}|${cleanInfo}###DEAN_END###`;
     });
@@ -1327,7 +1327,7 @@
     );
 
     html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, url) => {
-      const fullUrl = url.startsWith('/') ? `http://localhost:5000${url}` : url;
+      const fullUrl = url.startsWith('/') ? `https://arc-ai-l0x5.onrender.com${url}` : url;
       return `<a href="${fullUrl}" target="_blank"><img src="${fullUrl}" alt="${alt}" class="md-img" /></a>`;
     });
 
@@ -1390,7 +1390,7 @@
   let streamWatchdog = null;
 
   async function sendDirectToBackend(payload, aiBubble) {
-    const candidates = ['http://127.0.0.1:5000', 'http://localhost:5000'];
+    const candidates = ['https://arc-ai-l0x5.onrender.com', 'http://127.0.0.1:5000', 'http://localhost:5000'];
     let fullText = '';
 
     for (const base of candidates) {
@@ -1609,7 +1609,7 @@
   async function checkHealth() {
     // 1. Direct fetch from page/content script context (0 IPC, no lastError, instant)
     try {
-      const res = await fetch('http://localhost:5000/api/health', { signal: AbortSignal.timeout(1800) });
+      const res = await fetch('https://arc-ai-l0x5.onrender.com/api/health', { signal: AbortSignal.timeout(1800) });
       if (res.ok) {
         setHealthStatus(true);
         return;

@@ -318,89 +318,145 @@ chrome.runtime.onConnect.addListener((port) => {
         console.log('[Arc AI Extension] Local backend unavailable or timed out. Falling back to Groq Cloud AI...');
       }
 
-      // Tier 2: Direct Groq Cloud AI Streaming Fallback (Super fast, works on all tabs & LMS)
+      // Tier 2: Direct Groq Cloud AI Streaming Fallback with automatic model rotation on 429
       if (!streamHandled) {
-        try {
-          const cleanMessages = (msg.messages || []).map(m => ({
-            role: m.role === 'model' ? 'assistant' : m.role,
-            content: typeof m.content === 'string'
-              ? m.content
-              : Array.isArray(m.content)
-                ? (m.content.find(c => c.type === 'text')?.text || 'Analyze this question.')
-                : ''
-          }));
+        // Models tried in order — if one hits rate limit (429), next is used automatically
+        const GROQ_MODELS = [
+          'qwen/qwen3.8-27b',
+          'llama-3.3-70b-versatile',
+          'llama3-70b-8192',
+          'mixtral-8x7b-32768',
+          'gemma2-9b-it',
+          'llama3-8b-8192'
+        ];
 
-          if (!cleanMessages.some(m => m.role === 'system')) {
-            cleanMessages.unshift({ role: 'system', content: ARC_AI_SYSTEM_PROMPT });
-          }
+        const cleanMessages = (msg.messages || []).map(m => ({
+          role: m.role === 'model' ? 'assistant' : m.role,
+          content: typeof m.content === 'string'
+            ? m.content
+            : Array.isArray(m.content)
+              ? (m.content.find(c => c.type === 'text')?.text || 'Analyze this question.')
+              : ''
+        }));
 
-          const cloudRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + GROQ_API_KEY
-            },
-            body: JSON.stringify({
-              model: 'qwen/qwen3.8-27b',
-              messages: cleanMessages,
-              temperature: 0.7,
-              max_tokens: 2000,
-              stream: true
-            }),
-            signal: abortController ? abortController.signal : undefined
-          });
-
-          if (!cloudRes.ok) {
-            const errBody = await cloudRes.text().catch(() => '');
-            throw new Error(`Cloud AI returned status ${cloudRes.status}: ${errBody.slice(0, 80)}`);
-          }
-
-          const reader = cloudRes.body.getReader();
-          const decoder = new TextDecoder();
-          let fullText = '';
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n').filter(l => l.trim());
-
-            for (const line of lines) {
-              if (!line.startsWith('data: ')) continue;
-              const data = line.slice(6);
-              if (data === '[DONE]') {
-                port.postMessage({ type: 'done', fullText });
-                return;
-              }
-              try {
-                const parsed = JSON.parse(data);
-                const deltaContent = parsed.choices?.[0]?.delta?.content;
-                if (deltaContent) {
-                  fullText += deltaContent;
-                  port.postMessage({ type: 'chunk', delta: deltaContent, fullText });
-                }
-              } catch (_) {}
-            }
-          }
-
-          port.postMessage({ type: 'done', fullText });
-        } catch (cloudErr) {
-          if (cloudErr.name === 'AbortError') {
-            port.postMessage({ type: 'stopped' });
-          } else {
-            port.postMessage({
-              type: 'error',
-              error: `Arc AI: ${cloudErr.message}`
-            });
-          }
-        } finally {
-          if (heartbeatTimer) {
-            clearInterval(heartbeatTimer);
-            heartbeatTimer = null;
-          }
-          abortController = null;
+        if (!cleanMessages.some(m => m.role === 'system')) {
+          cleanMessages.unshift({ role: 'system', content: ARC_AI_SYSTEM_PROMPT });
         }
+
+        let cloudHandled = false;
+
+        for (const modelName of GROQ_MODELS) {
+          if (cloudHandled) break;
+          if (abortController?.signal?.aborted) break;
+
+          try {
+            const cloudRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + GROQ_API_KEY
+              },
+              body: JSON.stringify({
+                model: modelName,
+                messages: cleanMessages,
+                temperature: 0.7,
+                max_tokens: 2000,
+                stream: true
+              }),
+              signal: abortController ? abortController.signal : undefined
+            });
+
+            // 429 = rate limited — try next model silently
+            if (cloudRes.status === 429) {
+              console.log(`[Arc AI] Model ${modelName} rate limited (429), trying next...`);
+              continue;
+            }
+
+            if (!cloudRes.ok) {
+              const errBody = await cloudRes.text().catch(() => '');
+              // For other errors (401, 503 etc) also try next model
+              console.warn(`[Arc AI] Model ${modelName} returned ${cloudRes.status}, trying next...`);
+              continue;
+            }
+
+            const reader = cloudRes.body.getReader();
+            const decoder = new TextDecoder();
+            let fullText = '';
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              const chunk = decoder.decode(value, { stream: true });
+              const lines = chunk.split('\n').filter(l => l.trim());
+
+              for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                const data = line.slice(6);
+                if (data === '[DONE]') {
+                  port.postMessage({ type: 'done', fullText });
+                  cloudHandled = true;
+                  return;
+                }
+                try {
+                  const parsed = JSON.parse(data);
+                  const deltaContent = parsed.choices?.[0]?.delta?.content;
+                  if (deltaContent) {
+                    fullText += deltaContent;
+                    port.postMessage({ type: 'chunk', delta: deltaContent, fullText });
+                  }
+                } catch (_) {}
+              }
+            }
+
+            if (fullText) {
+              port.postMessage({ type: 'done', fullText });
+              cloudHandled = true;
+            }
+
+          } catch (modelErr) {
+            if (modelErr.name === 'AbortError') {
+              port.postMessage({ type: 'stopped' });
+              cloudHandled = true;
+              break;
+            }
+            // Network error — try next model
+            console.warn(`[Arc AI] Model ${modelName} error: ${modelErr.message}, trying next...`);
+          }
+        }
+
+        if (!cloudHandled) {
+          // All models exhausted — use Pollinations as final free fallback
+          try {
+            const polRes = await fetch('https://text.pollinations.ai/openai/chat/completions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ messages: cleanMessages, model: 'openai' })
+            });
+            if (polRes.ok) {
+              const polJson = await polRes.json();
+              const polText = polJson.choices?.[0]?.message?.content || '';
+              if (polText) {
+                port.postMessage({ type: 'chunk', delta: polText, fullText: polText });
+                port.postMessage({ type: 'done', fullText: polText });
+                cloudHandled = true;
+              }
+            }
+          } catch (_) {}
+        }
+
+        if (!cloudHandled) {
+          port.postMessage({
+            type: 'error',
+            error: 'All AI models are temporarily busy. Please wait a moment and try again.'
+          });
+        }
+
+        if (heartbeatTimer) {
+          clearInterval(heartbeatTimer);
+          heartbeatTimer = null;
+        }
+        abortController = null;
       }
     }
   });

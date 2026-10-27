@@ -296,7 +296,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           className={`rounded-2xl relative shadow-lg transition-all duration-300 ${
             isUser
               ? 'btn-radiant text-white rounded-tr-none px-4 py-2.5 w-fit max-w-full'
-              : 'glass-card border border-white/12 text-slate-100 rounded-tl-none p-3.5 sm:p-4 w-full'
+              : 'glass-card border border-white/12 text-slate-100 rounded-tl-none p-3.5 sm:p-4 w-fit max-w-full'
           }`}
         >
           {isEditing ? (

@@ -3,8 +3,9 @@
 // 2. Proxies chat and health requests from content scripts on HTTPS LMS/PMS portals without Mixed Content errors
 // 3. Ultra-fast direct Groq Cloud streaming fallback when local server is offline or busy
 
-const BACKEND_CANDIDATES = ['http://127.0.0.1:5000', 'http://localhost:5000'];
-let activeBackend = 'http://127.0.0.1:5000';
+const RENDER_BACKEND = 'https://arc-ai-l0x5.onrender.com';
+const BACKEND_CANDIDATES = [RENDER_BACKEND, 'http://127.0.0.1:5000', 'http://localhost:5000'];
+let activeBackend = RENDER_BACKEND;
 
 const GROQ_API_KEY = '';
 

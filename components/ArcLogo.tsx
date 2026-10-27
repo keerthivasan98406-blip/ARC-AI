@@ -15,11 +15,11 @@ export const ArcLogo: React.FC<ArcLogoProps> = ({ size = 'md', showText = true, 
       <div className={`relative ${dimensions} flex items-center justify-center`}>
         {/* Soft glow halo behind the logo */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#EC4899] opacity-40 blur-md group-hover:opacity-70 group-hover:blur-lg transition-all duration-500" />
-        <div className="relative w-full h-full animate-robot-float">
+        <div className="relative w-full h-full animate-robot-float rounded-full overflow-hidden">
           <img
             src="/arc_ai_logo.png"
             alt="Arc AI Logo"
-            className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(139,92,246,0.5)]"
+            className="w-full h-full object-cover drop-shadow-[0_0_10px_rgba(139,92,246,0.5)]"
           />
         </div>
       </div>

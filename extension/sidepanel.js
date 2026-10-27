@@ -1,8 +1,8 @@
 // Arc AI Extension — Side Panel Logic
-// Talks directly to the local Arc AI backend at localhost:5000 or 127.0.0.1:5000
+// Talks to the Render backend (primary) with localhost fallback for local dev
 
-let BACKEND = 'http://localhost:5000';
-const BACKEND_CANDIDATES = ['http://localhost:5000', 'http://127.0.0.1:5000'];
+let BACKEND = 'https://arc-ai-l0x5.onrender.com';
+const BACKEND_CANDIDATES = ['https://arc-ai-l0x5.onrender.com', 'http://localhost:5000', 'http://127.0.0.1:5000'];
 const STORAGE_KEY = 'arc_ai_ext_messages';
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ async function checkBackend() {
       }
     } catch (_) {}
   }
-  setStatus('error', 'Backend offline — run npm run dev:all');
+  setStatus('error', 'Backend offline — check Render dashboard');
 }
 
 function setStatus(state, text) {
@@ -385,7 +385,7 @@ async function sendMessage() {
     removeTyping();
     const isNetworkErr = err.message.includes('Failed to fetch') || err.message.includes('NetworkError');
     const errText = isNetworkErr
-      ? '⚠️ Cannot reach Arc AI backend.\n\nMake sure the server is running:\n```\nnpm run dev:all\n```\nThen try again.'
+      ? '⚠️ Cannot reach Arc AI backend.\n\nThe Render backend may be starting up (free tier spins down after inactivity). Please wait ~30 seconds and try again.'
       : `⚠️ ${err.message}`;
 
     messages.push({ role: 'ai', text: errText });

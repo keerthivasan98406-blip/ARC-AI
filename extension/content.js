@@ -1390,7 +1390,7 @@
   let streamWatchdog = null;
 
   async function sendDirectToBackend(payload, aiBubble) {
-    const candidates = ['https://arc-ai-l0x5.onrender.com', 'http://127.0.0.1:5000', 'http://localhost:5000'];
+    const candidates = ['https://arc-ai-l0x5.onrender.com'];
     let fullText = '';
 
     for (const base of candidates) {
@@ -1607,28 +1607,20 @@
 
   // ── 19. Health Check & Listeners ────────────────────────────────────────────
   async function checkHealth() {
-    // 1. Direct fetch from page/content script context (0 IPC, no lastError, instant)
+    // Only check Render backend — no localhost spam
     try {
-      const res = await fetch('https://arc-ai-l0x5.onrender.com/api/health', { signal: AbortSignal.timeout(1800) });
+      const res = await fetch('https://arc-ai-l0x5.onrender.com/api/health', { signal: AbortSignal.timeout(4000) });
       if (res.ok) {
         setHealthStatus(true);
         return;
       }
     } catch (_) {}
 
-    try {
-      const res2 = await fetch('http://127.0.0.1:5000/api/health', { signal: AbortSignal.timeout(1800) });
-      if (res2.ok) {
-        setHealthStatus(true);
-        return;
-      }
-    } catch (_) {}
-
-    // 2. Safe fallback via extension runtime (only if runtime context is active)
+    // Safe fallback via extension runtime (only if runtime context is active)
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
       try {
         chrome.runtime.sendMessage({ action: 'checkHealth' }, (res) => {
-          const _err = chrome.runtime.lastError; // Consume lastError to prevent unhandled console warning
+          const _err = chrome.runtime.lastError;
           setHealthStatus(!!res?.online);
         });
       } catch (_) {

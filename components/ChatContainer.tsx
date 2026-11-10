@@ -283,77 +283,73 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           onMouseEnter={() => setHeaderVisible(true)}
         />
 
-        {/* Header — always visible on mobile, hover-reveal on desktop */}
-        <header
-          className="nav-running-border px-3 sm:px-4 flex items-center justify-between border-b border-white/10 bg-[#080c18]/95 backdrop-blur-xl z-20 shrink-0"
-          style={{
-            height: 56,
-            transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
-          onMouseLeave={() => typeof window !== 'undefined' && window.innerWidth >= 1024 && setHeaderVisible(false)}
-          onMouseEnter={() => setHeaderVisible(true)}
-        >
-          {/* Left: Hamburger + Model Selector */}
-          <div className="flex items-center gap-2 min-w-0 flex-1">
+        {/* ── Redesigned Header: Unified Glassmorphic Command Bar ── */}
+        <header className="shrink-0 px-3 py-2 z-20 relative bg-[#07090f]/95 backdrop-blur-xl border-b border-white/[0.06]">
+          {/* Animated gradient accent line at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-[1.5px] nav-running-border" style={{ opacity: 0.7 }} />
+
+          <div className="flex items-center gap-2 max-w-full">
+
+            {/* Hamburger */}
             <button
               onClick={onToggleSidebar}
-              className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/40 hover:bg-purple-500/10 text-slate-300 hover:text-white transition-all duration-300 cursor-pointer shrink-0 flex items-center justify-center"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/8 transition-all duration-200 cursor-pointer shrink-0 border border-white/[0.06]"
               aria-label="Toggle sidebar"
             >
               <i className="fas fa-bars text-sm" />
             </button>
 
-            {/* Arc AI brand — mobile only */}
-            <div className="flex items-center gap-1.5 lg:hidden shrink-0">
-              <div className="w-7 h-7 rounded-full overflow-hidden border border-purple-500/40">
-                <img src="/arc_ai_logo.png" alt="Arc AI" className="w-full h-full object-cover" />
+            {/* Unified command capsule */}
+            <div className="flex-1 flex items-center rounded-2xl min-w-0 overflow-hidden border border-white/[0.07]"
+              style={{ background: 'rgba(10,13,25,0.9)' }}>
+
+              {/* Brand section */}
+              <div className="flex items-center gap-2 px-3 h-9 border-r border-white/[0.07] shrink-0">
+                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0"
+                  style={{ border: '1.5px solid rgba(139,92,246,0.5)', boxShadow: '0 0 8px rgba(139,92,246,0.35)' }}>
+                  <img src="/arc_ai_logo.png" alt="Arc AI" className="w-full h-full object-cover" />
+                </div>
+                <span className="text-xs font-extrabold text-white font-display tracking-tight hidden sm:block">
+                  Arc <span style={{ background: 'linear-gradient(90deg,#a78bfa,#38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span>
+                </span>
               </div>
-              <span className="text-sm font-extrabold text-white font-display tracking-tight">Arc <span className="text-gradient-radiant">AI</span></span>
-            </div>
 
-            {/* Model selector — hidden on smallest screens, shown from sm */}
-            <div className="hidden sm:block min-w-0">
-              <MultiModelSelector selectedModel={selectedModel} onSelectModel={onSelectModel} />
-            </div>
-          </div>
+              {/* Divider dot */}
+              <span className="w-1 h-1 rounded-full bg-white/10 mx-1 shrink-0 hidden sm:block" />
 
-          {/* Right: Web Search + Voice speed (desktop) */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Voice speed — desktop only */}
-            <div className="hidden lg:flex items-center gap-2 glass-card px-3 py-1.5 rounded-full border border-white/10 text-xs">
-              <i className="fas fa-volume-up text-purple-400 text-xs" />
-              <span className="text-[10px] text-slate-400 font-mono tracking-wide">Speed:</span>
-              <select
-                value={ttsSpeed}
-                onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
-                className="bg-transparent text-purple-300 font-bold text-xs focus:outline-none cursor-pointer"
+              {/* Model selector — fills remaining space */}
+              <div className="flex-1 min-w-0 px-1">
+                <MultiModelSelector selectedModel={selectedModel} onSelectModel={onSelectModel} />
+              </div>
+
+              {/* Web search */}
+              <button
+                onClick={() => onToggleWebSearch(!isWebSearchEnabled)}
+                className="flex items-center gap-1.5 h-9 px-3 border-l border-white/[0.07] transition-all duration-200 cursor-pointer shrink-0"
+                style={{ color: isWebSearchEnabled ? '#67e8f9' : '#475569', background: isWebSearchEnabled ? 'rgba(6,182,212,0.07)' : 'transparent' }}
+                title="Toggle Web Search"
               >
-                <option value="0.75" className="bg-slate-900">0.75x</option>
-                <option value="1.0" className="bg-slate-900">1.0x</option>
-                <option value="1.25" className="bg-slate-900">1.25x</option>
-                <option value="1.5" className="bg-slate-900">1.5x</option>
-                <option value="2.0" className="bg-slate-900">2.0x</option>
-              </select>
-            </div>
+                <i className="fas fa-globe text-xs" />
+                <span className="hidden md:inline text-[11px] font-bold">Web</span>
+                <span className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: isWebSearchEnabled ? '#22d3ee' : '#334155', boxShadow: isWebSearchEnabled ? '0 0 5px #22d3ee' : 'none' }} />
+              </button>
 
-            {/* Web Search toggle */}
-            <button
-              onClick={() => onToggleWebSearch(!isWebSearchEnabled)}
-              className={`h-9 px-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all duration-300 cursor-pointer border ${
-                isWebSearchEnabled
-                  ? 'bg-cyan-500/15 text-cyan-300 border-cyan-400/50 shadow-[0_0_16px_rgba(6,182,212,0.25)]'
-                  : 'bg-white/5 text-slate-400 border-white/10 hover:text-white hover:border-white/20'
-              }`}
-              title="Toggle Web Search"
-            >
-              <i className="fas fa-globe text-xs" />
-              <span className="hidden sm:inline text-[11px] font-semibold">Web</span>
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isWebSearchEnabled ? 'bg-cyan-400' : 'bg-slate-600'}`} />
-            </button>
-
-            {/* Model selector pill — mobile only (shown below hamburger row) */}
-            <div className="sm:hidden">
-              <MultiModelSelector selectedModel={selectedModel} onSelectModel={onSelectModel} />
+              {/* Voice speed — desktop only */}
+              <div className="hidden lg:flex items-center gap-1 h-9 px-3 border-l border-white/[0.07] shrink-0">
+                <i className="fas fa-volume-up text-purple-400 text-[10px]" />
+                <select
+                  value={ttsSpeed}
+                  onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
+                  className="bg-transparent text-slate-500 hover:text-white text-[11px] font-semibold focus:outline-none cursor-pointer"
+                >
+                  <option value="0.75" className="bg-slate-900">0.75×</option>
+                  <option value="1.0" className="bg-slate-900">1×</option>
+                  <option value="1.25" className="bg-slate-900">1.25×</option>
+                  <option value="1.5" className="bg-slate-900">1.5×</option>
+                  <option value="2.0" className="bg-slate-900">2×</option>
+                </select>
+              </div>
             </div>
           </div>
         </header>

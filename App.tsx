@@ -12,6 +12,32 @@ import { Message, MessageRole, ModelEngine, ChatSession, MemoryItem } from './ty
 import { chatWithArcAi } from './services/geminiService';
 
 const App: React.FC = () => {
+  // ── PWA Install Prompt ─────────────────────────────────────
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+      // Show banner if not already installed
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        setShowInstallBanner(true);
+      }
+    };
+    window.addEventListener('beforeinstallprompt', handler as EventListener);
+    return () => window.removeEventListener('beforeinstallprompt', handler as EventListener);
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setInstallPrompt(null);
+      setShowInstallBanner(false);
+    }
+  };
   const loadSavedSessions = (): ChatSession[] => {
     try {
       const saved = localStorage.getItem('arc_ai_chat_sessions');
@@ -309,10 +335,40 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-transparent flex flex-row p-0 animate-fade-in-up arc-app-shell">
+    <div className="relative w-screen overflow-hidden bg-transparent flex flex-col p-0 animate-fade-in-up arc-app-shell" style={{ height: '100dvh' }}>
       <AuroraBackground />
 
-      <div className="relative flex-1 min-w-0 h-full glass-os border border-purple-500/20 overflow-hidden flex flex-row shadow-2xl z-10 chat-panel-3d arc-app-frame" style={{boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(124,58,237,0.15), inset 0 1px 0 rgba(255,255,255,0.06)'}}>
+      {/* PWA Install Banner — mobile only */}
+      {showInstallBanner && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-between gap-3 px-4 py-3 lg:hidden"
+          style={{ background: 'rgba(10,13,25,0.97)', borderBottom: '1px solid rgba(139,92,246,0.4)', backdropFilter: 'blur(20px)' }}>
+          <div className="flex items-center gap-3 min-w-0">
+            <img src="/arc_ai_logo.png" alt="Arc AI" className="w-8 h-8 rounded-full border border-purple-500/50 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-white truncate">Install Arc AI</p>
+              <p className="text-[10px] text-slate-400 truncate">Add to home screen for the best experience</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleInstallApp}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold text-white cursor-pointer"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}
+            >
+              Install
+            </button>
+            <button
+              onClick={() => setShowInstallBanner(false)}
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white cursor-pointer"
+              style={{ background: 'rgba(255,255,255,0.05)' }}
+            >
+              <i className="fas fa-times text-xs" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="relative flex-1 min-w-0 glass-os border border-purple-500/20 overflow-hidden flex flex-row shadow-2xl z-10 chat-panel-3d arc-app-frame" style={{ marginTop: showInstallBanner ? '64px' : '0', boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(124,58,237,0.15), inset 0 1px 0 rgba(255,255,255,0.06)', transition: 'margin-top 0.2s ease' }}>
         <Sidebar
           isOpen={isSidebarOpen}
           onToggle={() => setIsSidebarOpen(!isSidebarOpen)}

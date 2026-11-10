@@ -285,33 +285,44 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
 
         {/* Header — always visible on mobile, hover-reveal on desktop */}
         <header
-          className="nav-running-border px-3 sm:px-4 md:px-6 flex items-center justify-between border-b border-white/10 bg-slate-950/90 backdrop-blur-xl z-20 shrink-0"
+          className="nav-running-border px-3 sm:px-4 flex items-center justify-between border-b border-white/10 bg-[#080c18]/95 backdrop-blur-xl z-20 shrink-0"
           style={{
             height: 56,
-            transform: headerVisible ? 'translateY(0)' : 'translateY(0)',
             transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
           onMouseLeave={() => typeof window !== 'undefined' && window.innerWidth >= 1024 && setHeaderVisible(false)}
           onMouseEnter={() => setHeaderVisible(true)}
         >
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          {/* Left: Hamburger + Model Selector */}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <button
               onClick={onToggleSidebar}
-              className={`p-2 sm:p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/40 hover:bg-purple-500/10 text-slate-300 hover:text-white transition-all duration-300 cursor-pointer shrink-0 ${
-                isSidebarOpen ? 'lg:hidden' : 'flex'
-              }`}
-              aria-label="Toggle sidebar navigation"
-              title="Toggle sidebar navigation"
+              className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/40 hover:bg-purple-500/10 text-slate-300 hover:text-white transition-all duration-300 cursor-pointer shrink-0 flex items-center justify-center"
+              aria-label="Toggle sidebar"
             >
               <i className="fas fa-bars text-sm" />
             </button>
-            <MultiModelSelector selectedModel={selectedModel} onSelectModel={onSelectModel} />
+
+            {/* Arc AI brand — mobile only */}
+            <div className="flex items-center gap-1.5 lg:hidden shrink-0">
+              <div className="w-7 h-7 rounded-full overflow-hidden border border-purple-500/40">
+                <img src="/arc_ai_logo.png" alt="Arc AI" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-sm font-extrabold text-white font-display tracking-tight">Arc <span className="text-gradient-radiant">AI</span></span>
+            </div>
+
+            {/* Model selector — hidden on smallest screens, shown from sm */}
+            <div className="hidden sm:block min-w-0">
+              <MultiModelSelector selectedModel={selectedModel} onSelectModel={onSelectModel} />
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="hidden sm:flex items-center gap-2 glass-card px-3 py-1.5 rounded-full border border-white/10 text-xs">
+          {/* Right: Web Search + Voice speed (desktop) */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Voice speed — desktop only */}
+            <div className="hidden lg:flex items-center gap-2 glass-card px-3 py-1.5 rounded-full border border-white/10 text-xs">
               <i className="fas fa-volume-up text-purple-400 text-xs" />
-              <span className="text-[10px] text-slate-400 font-mono tracking-wide">Voice Speed:</span>
+              <span className="text-[10px] text-slate-400 font-mono tracking-wide">Speed:</span>
               <select
                 value={ttsSpeed}
                 onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
@@ -325,27 +336,32 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
               </select>
             </div>
 
+            {/* Web Search toggle */}
             <button
               onClick={() => onToggleWebSearch(!isWebSearchEnabled)}
-              className={`px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all duration-300 cursor-pointer ${
+              className={`h-9 px-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all duration-300 cursor-pointer border ${
                 isWebSearchEnabled
-                  ? 'bg-gradient-to-r from-cyan-500/25 to-blue-500/25 text-cyan-300 border border-cyan-400/50 shadow-[0_0_20px_rgba(6,182,212,0.3)]'
-                  : 'glass-button text-slate-400 hover:text-white'
+                  ? 'bg-cyan-500/15 text-cyan-300 border-cyan-400/50 shadow-[0_0_16px_rgba(6,182,212,0.25)]'
+                  : 'bg-white/5 text-slate-400 border-white/10 hover:text-white hover:border-white/20'
               }`}
               title="Toggle Web Search"
             >
               <i className="fas fa-globe text-xs" />
-              <span className="hidden md:inline">Web Search</span>
-              <span className={`w-1.5 h-1.5 rounded-full ${isWebSearchEnabled ? 'bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.8)]' : 'bg-slate-600'}`} />
+              <span className="hidden sm:inline text-[11px] font-semibold">Web</span>
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isWebSearchEnabled ? 'bg-cyan-400' : 'bg-slate-600'}`} />
             </button>
 
+            {/* Model selector pill — mobile only (shown below hamburger row) */}
+            <div className="sm:hidden">
+              <MultiModelSelector selectedModel={selectedModel} onSelectModel={onSelectModel} />
+            </div>
           </div>
         </header>
 
         {/* Main chat area — full height since header floats above */}
         <main className="relative flex-1 overflow-hidden p-3 sm:p-4 md:p-6 h-full">
           <video
-            className="absolute inset-0 w-full h-full object-cover object-center z-0 pointer-events-none opacity-25"
+            className="absolute inset-0 w-full h-full object-contain object-center z-0 pointer-events-none opacity-20"
             autoPlay muted loop playsInline preload="auto"
           >
             <source src="/assets/infinity.mp4" type="video/mp4" />

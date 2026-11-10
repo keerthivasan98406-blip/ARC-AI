@@ -274,7 +274,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
       </div>
 
       {/* ── Main Chat Column ── */}
-      <div className="flex-1 h-full flex flex-col justify-between relative overflow-hidden min-w-0 bg-[#060913]/95 pb-[68px] lg:pb-0">
+      <div className="flex-1 h-full flex flex-col relative overflow-hidden min-w-0 bg-[#060913]/95 pb-[68px] lg:pb-0">
 
         {/* Hover zone — invisible strip at top that reveals the header (desktop only) */}
         <div

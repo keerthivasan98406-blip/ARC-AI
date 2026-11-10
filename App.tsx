@@ -385,8 +385,10 @@ const App: React.FC = () => {
         onClose={() => setIsAdminDashboardOpen(false)}
       />
 
-      {/* Floating Assistant — always visible on every screen */}
-      <FloatingAssistantButton />
+      {/* Floating Assistant — desktop only */}
+      <div className="hidden lg:block">
+        <FloatingAssistantButton />
+      </div>
 
       {/* Mobile Bottom Navigation Bar */}
       <nav className="mobile-bottom-nav items-center justify-around px-2 py-2 lg:hidden" aria-label="Mobile navigation">

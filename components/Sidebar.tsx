@@ -232,7 +232,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
 
-          <div className="pt-3 border-t border-white/10 space-y-2">
+          <div className="pt-3 border-t border-white/10 space-y-2 pb-[80px] lg:pb-0">
             {/* Claim Offer Button */}
             <button
               onClick={() => setClaimModalOpen(true)}

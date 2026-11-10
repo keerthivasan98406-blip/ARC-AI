@@ -357,7 +357,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         {/* Main chat area */}
         <main className="relative flex-1 overflow-hidden p-3 sm:p-4 md:p-6 min-h-0">
           <video
-            className="absolute inset-0 w-full h-full object-contain object-center z-0 pointer-events-none opacity-20 scale-100 sm:scale-100 lg:scale-100"
+            className="absolute inset-0 w-full h-full object-contain object-center z-0 pointer-events-none opacity-20"
             style={{ transform: 'scale(1.8)', transformOrigin: 'center center' }}
             autoPlay muted loop playsInline preload="auto"
           >
@@ -367,9 +367,9 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
             className="absolute inset-0 z-0 pointer-events-none"
             style={{ background: 'radial-gradient(circle at center, rgba(8, 12, 24, 0.5) 0%, rgba(4, 6, 12, 0.75) 100%)' }}
           />
-          <div className="relative z-10 h-full overflow-y-auto custom-scrollbar">
+          <div className="relative z-10 h-full overflow-y-auto custom-scrollbar flex flex-col">
             {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center max-w-4xl mx-auto px-2 sm:px-4 space-y-4 sm:space-y-6 animate-fade-in-up">
+              <div className="flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto px-2 sm:px-4 space-y-4 sm:space-y-6 animate-fade-in-up min-h-[200px]">
                 <div className="space-y-3 sm:space-y-4">
                   <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white font-display tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] leading-tight">
                     What would you like to build today?

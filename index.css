@@ -1533,3 +1533,54 @@ input[type="checkbox"] {
     animation: none !important;
   }
 }
+
+/* ── Chat Input Box — Running Lightning Border ── */
+/* A single bright light streak races continuously around the input border */
+.input-lightning-border {
+  position: relative;
+  border-radius: 1rem;
+}
+
+.input-lightning-border::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--lightning-angle, 0deg),
+    transparent 0deg,
+    transparent 300deg,
+    rgba(255, 255, 255, 0.0) 320deg,
+    rgba(167, 139, 250, 0.6) 335deg,
+    rgba(255, 255, 255, 1.0) 345deg,
+    rgba(56, 189, 248, 0.9) 355deg,
+    rgba(236, 72, 153, 0.6) 358deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: inputLightningRun 2s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@property --lightning-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes inputLightningRun {
+  0%   { --lightning-angle: 0deg; }
+  100% { --lightning-angle: 360deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input-lightning-border::before {
+    animation: none !important;
+  }
+}

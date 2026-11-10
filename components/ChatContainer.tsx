@@ -420,7 +420,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           )}
 
           <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative">
-            <div className="relative rounded-2xl bg-gradient-to-r from-purple-500/40 via-cyan-500/40 to-blue-500/40 p-[1.5px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] focus-within:shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all duration-300">
+            <div className="input-lightning-border relative rounded-2xl bg-gradient-to-r from-purple-500/40 via-cyan-500/40 to-blue-500/40 p-[1.5px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] focus-within:shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all duration-300">
               <div className="bg-[#0B101E]/95 backdrop-blur-2xl rounded-[15px] px-2 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"

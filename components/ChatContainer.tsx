@@ -357,7 +357,8 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         {/* Main chat area — full height since header floats above */}
         <main className="relative flex-1 overflow-hidden p-3 sm:p-4 md:p-6 h-full">
           <video
-            className="absolute inset-0 w-full h-full object-contain object-center z-0 pointer-events-none opacity-20"
+            className="absolute inset-0 w-full h-full object-contain object-center z-0 pointer-events-none opacity-20 scale-100 sm:scale-100 lg:scale-100"
+            style={{ transform: 'scale(1.8)', transformOrigin: 'center center' }}
             autoPlay muted loop playsInline preload="auto"
           >
             <source src="/assets/infinity.mp4" type="video/mp4" />

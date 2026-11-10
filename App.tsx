@@ -387,6 +387,54 @@ const App: React.FC = () => {
 
       {/* Floating Assistant — always visible on every screen */}
       <FloatingAssistantButton />
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="mobile-bottom-nav items-center justify-around px-2 py-2 lg:hidden" aria-label="Mobile navigation">
+        <button
+          onClick={handleNewChat}
+          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
+          aria-label="New Chat"
+        >
+          <i className="fas fa-plus text-base" />
+          <span className="text-[9px] font-bold tracking-wide">New Chat</span>
+        </button>
+
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
+          aria-label="History"
+        >
+          <i className="fas fa-history text-base" />
+          <span className="text-[9px] font-bold tracking-wide">History</span>
+        </button>
+
+        <button
+          onClick={() => setIsStudyHubOpen(true)}
+          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
+          aria-label="Study Hub"
+        >
+          <i className="fas fa-graduation-cap text-base" />
+          <span className="text-[9px] font-bold tracking-wide">Study</span>
+        </button>
+
+        <button
+          onClick={() => setIsImageStudioOpen(true)}
+          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
+          aria-label="Image Studio"
+        >
+          <i className="fas fa-palette text-base" />
+          <span className="text-[9px] font-bold tracking-wide">Image</span>
+        </button>
+
+        <button
+          onClick={() => setIsMemoryDrawerOpen(true)}
+          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
+          aria-label="Memory"
+        >
+          <i className="fas fa-brain text-base" />
+          <span className="text-[9px] font-bold tracking-wide">Memory</span>
+        </button>
+      </nav>
     </div>
   );
 };

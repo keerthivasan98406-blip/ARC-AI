@@ -176,8 +176,8 @@ Return ONLY valid JSON with this exact schema (no additional markdown text):
   const activeStep = steps[currentStepIndex];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6 bg-black/80 backdrop-blur-md modal-backdrop animate-fade-in-up duration-200">
-      <div className="w-full max-w-6xl h-[92vh] glass-elevated rounded-3xl border border-cyan-500/30 p-5 flex flex-col justify-between shadow-2xl overflow-hidden relative animate-fade-in-scale">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-3 md:p-6 bg-black/80 backdrop-blur-md modal-backdrop animate-fade-in-up duration-200">
+      <div className="w-full max-w-6xl h-[95dvh] sm:h-[92vh] glass-elevated rounded-t-3xl sm:rounded-3xl border border-cyan-500/30 p-3 sm:p-5 flex flex-col justify-between shadow-2xl overflow-hidden relative animate-fade-in-scale">
         <div className="flex items-center justify-between pb-3 border-b border-white/12 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center text-white shadow-lg animate-orb-pulse">

@@ -34,8 +34,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md modal-backdrop animate-fade-in-up">
-      <div className="glass-elevated p-8 rounded-3xl border border-indigo-500/20 max-w-md w-full animate-fade-in-scale">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md modal-backdrop animate-fade-in-up">
+      <div className="glass-elevated p-5 sm:p-8 rounded-t-3xl sm:rounded-3xl border border-indigo-500/20 w-full max-w-md animate-fade-in-scale max-h-[95dvh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent font-display tracking-tight">
             Edit Profile

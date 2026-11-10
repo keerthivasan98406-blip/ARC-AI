@@ -42,8 +42,8 @@ export const MemoryDrawer: React.FC<MemoryDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/65 backdrop-blur-md modal-backdrop animate-fade-in-up duration-200">
-      <div className="w-full max-w-md h-full glass-elevated border-l border-white/15 p-6 flex flex-col justify-between shadow-2xl overflow-y-auto animate-slide-in-right">
+    <div className="fixed inset-0 z-50 flex flex-col-reverse sm:flex-row sm:justify-end bg-black/65 backdrop-blur-md modal-backdrop animate-fade-in-up duration-200">
+      <div className="w-full max-w-md sm:h-full h-[90dvh] glass-elevated border-t sm:border-t-0 sm:border-l border-white/15 p-4 sm:p-6 flex flex-col justify-between shadow-2xl overflow-y-auto rounded-t-3xl sm:rounded-none animate-slide-in-right">
         <div>
           <div className="flex items-center justify-between pb-4 border-b border-white/12">
             <div className="flex items-center gap-3">

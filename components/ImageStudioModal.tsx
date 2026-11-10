@@ -97,8 +97,8 @@ export const ImageStudioModal: React.FC<ImageStudioModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md modal-backdrop animate-fade-in-up duration-200">
-      <div className="w-full max-w-4xl max-h-[90vh] glass-elevated rounded-3xl border border-cyan-500/30 p-6 flex flex-col justify-between shadow-2xl overflow-y-auto relative animate-fade-in-scale">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md modal-backdrop animate-fade-in-up duration-200">
+      <div className="w-full max-w-4xl max-h-[95dvh] sm:max-h-[90vh] glass-elevated rounded-t-3xl sm:rounded-3xl border border-cyan-500/30 p-4 sm:p-6 flex flex-col justify-between shadow-2xl overflow-y-auto relative animate-fade-in-scale">
         <div className="flex items-center justify-between pb-4 border-b border-white/12">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg animate-orb-pulse">

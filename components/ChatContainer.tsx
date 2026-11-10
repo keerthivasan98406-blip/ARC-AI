@@ -274,25 +274,24 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
       </div>
 
       {/* ── Main Chat Column ── */}
-      <div className="flex-1 h-full flex flex-col justify-between relative overflow-hidden min-w-0 bg-[#060913]/95">
+      <div className="flex-1 h-full flex flex-col justify-between relative overflow-hidden min-w-0 bg-[#060913]/95 pb-[68px] lg:pb-0">
 
-        {/* Hover zone — invisible strip at top that reveals the header */}
+        {/* Hover zone — invisible strip at top that reveals the header (desktop only) */}
         <div
-          className="absolute top-0 left-0 right-0 z-30"
+          className="absolute top-0 left-0 right-0 z-30 hidden lg:block"
           style={{ height: '4px' }}
           onMouseEnter={() => setHeaderVisible(true)}
         />
 
-        {/* Header — hidden by default, slides down on hover */}
+        {/* Header — always visible on mobile, hover-reveal on desktop */}
         <header
-          className="nav-running-border px-3 sm:px-4 md:px-6 flex items-center justify-between border-b border-white/10 bg-slate-950/90 backdrop-blur-xl z-20 shrink-0 absolute top-0 left-0 right-0"
+          className="nav-running-border px-3 sm:px-4 md:px-6 flex items-center justify-between border-b border-white/10 bg-slate-950/90 backdrop-blur-xl z-20 shrink-0"
           style={{
-            height: 64,
-            transform: headerVisible ? 'translateY(0)' : 'translateY(-100%)',
+            height: 56,
+            transform: headerVisible ? 'translateY(0)' : 'translateY(0)',
             transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
-            pointerEvents: headerVisible ? 'all' : 'none',
           }}
-          onMouseLeave={() => setHeaderVisible(false)}
+          onMouseLeave={() => typeof window !== 'undefined' && window.innerWidth >= 1024 && setHeaderVisible(false)}
           onMouseEnter={() => setHeaderVisible(true)}
         >
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -397,7 +396,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         </main>
 
         {/* Footer input */}
-        <footer className="p-2 sm:p-4 md:p-6 shrink-0 relative z-20">
+        <footer className="p-2 sm:p-3 md:p-6 shrink-0 relative z-20 pb-safe" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
           {attachedImage && (
             <div className="mb-2 sm:mb-3 inline-flex items-center gap-2 glass-pill px-3 py-1.5 rounded-xl border border-cyan-400/40 animate-fade-in-up shadow-lg bg-slate-900/90">
               <img src={attachedImage} alt="" className="w-7 h-7 sm:w-8 sm:h-8 object-cover rounded-lg border border-cyan-400/50" />

@@ -1584,3 +1584,16 @@ input[type="checkbox"] {
     animation: none !important;
   }
 }
+
+/* ── Mobile bottom nav clearance — ensure content never hides behind fixed bottom nav ── */
+@media (max-width: 1023px) {
+  .arc-app-frame {
+    padding-bottom: 0 !important;
+  }
+
+  /* The fixed bottom nav is 64px tall. Push the entire chat frame up so footer is visible */
+  .arc-app-shell > .arc-app-frame {
+    height: calc(100dvh - 64px) !important;
+    max-height: calc(100dvh - 64px) !important;
+  }
+}

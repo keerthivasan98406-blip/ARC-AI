@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { AuroraBackground } from './components/AuroraBackground';
 import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
@@ -14,11 +14,16 @@ import { chatWithArcAi } from './services/geminiService';
 const App: React.FC = () => {
   // ── PWA Install Prompt ─────────────────────────────────────
   const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e);
+      // Show banner if not already installed
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        setShowInstallBanner(true);
+      }
     };
     window.addEventListener('beforeinstallprompt', handler as EventListener);
     return () => window.removeEventListener('beforeinstallprompt', handler as EventListener);
@@ -30,6 +35,7 @@ const App: React.FC = () => {
     const { outcome } = await installPrompt.userChoice;
     if (outcome === 'accepted') {
       setInstallPrompt(null);
+      setShowInstallBanner(false);
     }
   };
   const loadSavedSessions = (): ChatSession[] => {
@@ -39,7 +45,7 @@ const App: React.FC = () => {
         const parsed: ChatSession[] = JSON.parse(saved);
         return parsed.filter((s) => !s.title.toLowerCase().includes('leonux'));
       }
-    } catch (e) { }
+    } catch (e) {}
     return [];
   };
 
@@ -55,7 +61,7 @@ const App: React.FC = () => {
         );
         return cleaned;
       }
-    } catch (e) { }
+    } catch (e) {}
     return [
       {
         id: 'mem-1',
@@ -114,13 +120,13 @@ const App: React.FC = () => {
   useEffect(() => {
     try {
       localStorage.setItem('arc_ai_chat_sessions', JSON.stringify(chatSessions));
-    } catch (e) { }
+    } catch (e) {}
   }, [chatSessions]);
 
   useEffect(() => {
     try {
       localStorage.setItem('arc_ai_memories', JSON.stringify(memories));
-    } catch (e) { }
+    } catch (e) {}
   }, [memories]);
 
   const handleSelectSession = (id: string) => {
@@ -183,7 +189,7 @@ const App: React.FC = () => {
           localStorage.removeItem(key);
         }
       });
-    } catch (e) { }
+    } catch (e) {}
     setMemories([]);
     setChatSessions([]);
     setMessages([]);
@@ -279,10 +285,10 @@ const App: React.FC = () => {
         prev.map((m) =>
           m.id === assistantMsgId
             ? {
-              ...m,
-              content: 'An error occurred while communicating with Arc AI Neural Gateway. Please check your connectivity and try again.',
-              isStreaming: false,
-            }
+                ...m,
+                content: 'An error occurred while communicating with Arc AI Neural Gateway. Please check your connectivity and try again.',
+                isStreaming: false,
+              }
             : m
         )
       );
@@ -321,7 +327,7 @@ const App: React.FC = () => {
       localStorage.removeItem('arc_ai_chat_sessions');
       localStorage.removeItem('arc_ai_memories');
       localStorage.removeItem('arc_ai_user_profile');
-    } catch (e) { }
+    } catch (e) {}
     setChatSessions([]);
     setMessages([]);
     setCurrentSessionId(null);
@@ -332,7 +338,7 @@ const App: React.FC = () => {
     <div className="relative w-screen bg-transparent p-0 arc-app-shell" style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <AuroraBackground />
 
-      {/* Main app frame */}
+      {/* Main app frame — fills all space above the bottom nav */}
       <div
         className="relative min-w-0 glass-os border border-purple-500/20 overflow-hidden flex flex-row shadow-2xl z-10 chat-panel-3d arc-app-frame"
         style={{

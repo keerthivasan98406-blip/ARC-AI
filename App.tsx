@@ -335,12 +335,18 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative w-screen overflow-hidden bg-transparent flex flex-col p-0 animate-fade-in-up arc-app-shell" style={{ height: '100dvh' }}>
+    <div className="relative w-screen bg-transparent p-0 arc-app-shell" style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <AuroraBackground />
 
-      {/* PWA install banner removed — install option is in the sidebar instead */}
-
-      <div className="relative flex-1 min-w-0 glass-os border border-purple-500/20 overflow-hidden flex flex-row shadow-2xl z-10 chat-panel-3d arc-app-frame" style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(124,58,237,0.15), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
+      {/* Main app frame — fills all space above the bottom nav */}
+      <div
+        className="relative min-w-0 glass-os border border-purple-500/20 overflow-hidden flex flex-row shadow-2xl z-10 chat-panel-3d arc-app-frame"
+        style={{
+          flex: '1 1 0%',
+          minHeight: 0,
+          boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(124,58,237,0.15), inset 0 1px 0 rgba(255,255,255,0.06)'
+        }}
+      >
         <Sidebar
           isOpen={isSidebarOpen}
           onToggle={() => setIsSidebarOpen(!isSidebarOpen)}

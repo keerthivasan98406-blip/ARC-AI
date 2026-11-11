@@ -1597,3 +1597,56 @@ input[type="checkbox"] {
     max-height: calc(100dvh - 64px) !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE LAYOUT ARCHITECTURE FIX
+   ═══════════════════════════════════════════════════════════
+   The bottom nav is fixed at 64px.
+   The app shell uses flexbox column.
+   arc-app-frame gets flex:1 from JS (inline style).
+   We just need the bottom nav space reserved.
+   ─────────────────────────────────────────────────────────── */
+
+/* Bottom nav height token */
+:root {
+  --bottom-nav-h: 64px;
+}
+
+/* On mobile: the arc-app-shell flex column fills 100dvh.
+   arc-app-frame (flex:1) fills everything except the bottom nav. */
+@media (max-width: 1023px) {
+  .arc-app-shell {
+    height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  /* arc-app-frame is flex:1 via inline style, which makes it fill
+     the space above the fixed bottom nav naturally */
+  .arc-app-frame {
+    min-height: 0 !important;
+    overflow: hidden !important;
+    /* Remove any conflicting height calculations */
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Bottom nav: fixed to bottom, always on top */
+  .mobile-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: var(--bottom-nav-h) !important;
+    z-index: 60 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+}
+
+/* Footer: needs bottom margin to clear the fixed bottom nav on mobile */
+@media (max-width: 1023px) {
+  .chat-footer-mobile-clearance {
+    margin-bottom: var(--bottom-nav-h) !important;
+  }
+}

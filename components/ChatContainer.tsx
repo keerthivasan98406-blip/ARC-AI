@@ -409,7 +409,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         </main>
 
         {/* Footer input — sits at the bottom, stays above the mobile bottom nav */}
-        <footer className="shrink-0 relative z-20 px-2 pt-3 pb-2 sm:px-3 sm:pt-4 md:px-6 md:pt-5 lg:pb-4"
+        <footer className="chat-footer-mobile-clearance shrink-0 relative z-20 px-2 pt-3 pb-2 sm:px-3 sm:pt-4 md:px-6 md:pt-5 lg:pb-4 lg:mb-0"
           style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))' }}
         >
           {attachedImage && (

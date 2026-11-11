@@ -1,4 +1,4 @@
- import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuroraBackground } from './components/AuroraBackground';
 import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
@@ -14,16 +14,11 @@ import { chatWithArcAi } from './services/geminiService';
 const App: React.FC = () => {
   // ── PWA Install Prompt ─────────────────────────────────────
   const [installPrompt, setInstallPrompt] = useState<any>(null);
-  const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e);
-      // Show banner if not already installed
-      if (!window.matchMedia('(display-mode: standalone)').matches) {
-        setShowInstallBanner(true);
-      }
     };
     window.addEventListener('beforeinstallprompt', handler as EventListener);
     return () => window.removeEventListener('beforeinstallprompt', handler as EventListener);
@@ -35,7 +30,6 @@ const App: React.FC = () => {
     const { outcome } = await installPrompt.userChoice;
     if (outcome === 'accepted') {
       setInstallPrompt(null);
-      setShowInstallBanner(false);
     }
   };
   const loadSavedSessions = (): ChatSession[] => {
@@ -45,7 +39,7 @@ const App: React.FC = () => {
         const parsed: ChatSession[] = JSON.parse(saved);
         return parsed.filter((s) => !s.title.toLowerCase().includes('leonux'));
       }
-    } catch (e) {}
+    } catch (e) { }
     return [];
   };
 
@@ -61,7 +55,7 @@ const App: React.FC = () => {
         );
         return cleaned;
       }
-    } catch (e) {}
+    } catch (e) { }
     return [
       {
         id: 'mem-1',
@@ -120,13 +114,13 @@ const App: React.FC = () => {
   useEffect(() => {
     try {
       localStorage.setItem('arc_ai_chat_sessions', JSON.stringify(chatSessions));
-    } catch (e) {}
+    } catch (e) { }
   }, [chatSessions]);
 
   useEffect(() => {
     try {
       localStorage.setItem('arc_ai_memories', JSON.stringify(memories));
-    } catch (e) {}
+    } catch (e) { }
   }, [memories]);
 
   const handleSelectSession = (id: string) => {
@@ -189,7 +183,7 @@ const App: React.FC = () => {
           localStorage.removeItem(key);
         }
       });
-    } catch (e) {}
+    } catch (e) { }
     setMemories([]);
     setChatSessions([]);
     setMessages([]);
@@ -285,10 +279,10 @@ const App: React.FC = () => {
         prev.map((m) =>
           m.id === assistantMsgId
             ? {
-                ...m,
-                content: 'An error occurred while communicating with Arc AI Neural Gateway. Please check your connectivity and try again.',
-                isStreaming: false,
-              }
+              ...m,
+              content: 'An error occurred while communicating with Arc AI Neural Gateway. Please check your connectivity and try again.',
+              isStreaming: false,
+            }
             : m
         )
       );
@@ -327,7 +321,7 @@ const App: React.FC = () => {
       localStorage.removeItem('arc_ai_chat_sessions');
       localStorage.removeItem('arc_ai_memories');
       localStorage.removeItem('arc_ai_user_profile');
-    } catch (e) {}
+    } catch (e) { }
     setChatSessions([]);
     setMessages([]);
     setCurrentSessionId(null);
@@ -338,7 +332,7 @@ const App: React.FC = () => {
     <div className="relative w-screen bg-transparent p-0 arc-app-shell" style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <AuroraBackground />
 
-      {/* Main app frame — fills all space above the bottom nav */}
+      {/* Main app frame */}
       <div
         className="relative min-w-0 glass-os border border-purple-500/20 overflow-hidden flex flex-row shadow-2xl z-10 chat-panel-3d arc-app-frame"
         style={{
@@ -425,53 +419,6 @@ const App: React.FC = () => {
         <FloatingAssistantButton />
       </div>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="mobile-bottom-nav items-center justify-around px-2 py-2 lg:hidden" aria-label="Mobile navigation">
-        <button
-          onClick={handleNewChat}
-          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
-          aria-label="New Chat"
-        >
-          <i className="fas fa-plus text-base" />
-          <span className="text-[9px] font-bold tracking-wide">New Chat</span>
-        </button>
-
-        <button
-          onClick={() => setIsSidebarOpen(true)}
-          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
-          aria-label="History"
-        >
-          <i className="fas fa-history text-base" />
-          <span className="text-[9px] font-bold tracking-wide">History</span>
-        </button>
-
-        <button
-          onClick={() => setIsStudyHubOpen(true)}
-          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
-          aria-label="Study Hub"
-        >
-          <i className="fas fa-graduation-cap text-base" />
-          <span className="text-[9px] font-bold tracking-wide">Study</span>
-        </button>
-
-        <button
-          onClick={() => setIsImageStudioOpen(true)}
-          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
-          aria-label="Image Studio"
-        >
-          <i className="fas fa-palette text-base" />
-          <span className="text-[9px] font-bold tracking-wide">Image</span>
-        </button>
-
-        <button
-          onClick={() => setIsMemoryDrawerOpen(true)}
-          className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all duration-200 min-w-[48px]"
-          aria-label="Memory"
-        >
-          <i className="fas fa-brain text-base" />
-          <span className="text-[9px] font-bold tracking-wide">Memory</span>
-        </button>
-      </nav>
     </div>
   );
 };

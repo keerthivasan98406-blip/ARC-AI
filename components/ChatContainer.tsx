@@ -31,7 +31,7 @@ const NotesPanel: React.FC = () => {
 
   // Auto-save to localStorage on change
   useEffect(() => {
-    try { localStorage.setItem('arc_ai_notes', noteText); } catch {}
+    try { localStorage.setItem('arc_ai_notes', noteText); } catch { }
   }, [noteText]);
 
   const handleSave = () => {
@@ -50,7 +50,7 @@ const NotesPanel: React.FC = () => {
         win.document.write(`
           <html><head><title>Arc AI Notes</title>
           <style>body{font-family:sans-serif;padding:32px;white-space:pre-wrap;line-height:1.7;}</style>
-          </head><body>${noteText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</body></html>
+          </head><body>${noteText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body></html>
         `);
         win.document.close();
         win.print();
@@ -134,11 +134,10 @@ const NotesPanel: React.FC = () => {
             <button
               key={fmt}
               onClick={() => setSaveFormat(fmt)}
-              className={`flex-1 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all duration-200 cursor-pointer border ${
-                saveFormat === fmt
+              className={`flex-1 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all duration-200 cursor-pointer border ${saveFormat === fmt
                   ? 'bg-purple-500/20 border-purple-500/50 text-purple-300'
                   : 'bg-white/5 border-white/10 text-slate-500 hover:text-slate-300 hover:border-white/20'
-              }`}
+                }`}
             >
               .{fmt}
             </button>
@@ -149,11 +148,10 @@ const NotesPanel: React.FC = () => {
         <button
           onClick={handleSave}
           disabled={!noteText.trim()}
-          className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-            savedFlash
+          className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${savedFlash
               ? 'bg-green-500/20 border border-green-500/50 text-green-300'
               : 'btn-radiant text-white'
-          }`}
+            }`}
         >
           <i className={`fas ${savedFlash ? 'fa-check' : 'fa-download'} text-xs`} />
           <span>{savedFlash ? 'Saved!' : `Save as .${saveFormat}`}</span>
@@ -183,7 +181,6 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [ttsSpeed, setTtsSpeed] = useState<number>(1.0);
-  const [headerVisible, setHeaderVisible] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -267,114 +264,239 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     <div className="flex-1 h-full flex flex-row relative overflow-hidden min-w-0">
 
       {/* ── Notes Panel: visible only on desktop when sidebar is hidden ── */}
-      <div className={`hidden lg:block h-full transition-all duration-300 ease-in-out shrink-0 ${
-        isSidebarOpen ? 'w-0 opacity-0 overflow-hidden' : 'w-60 opacity-100'
-      }`}>
+      <div className={`hidden lg:block h-full transition-all duration-300 ease-in-out shrink-0 ${isSidebarOpen ? 'w-0 opacity-0 overflow-hidden' : 'w-60 opacity-100'
+        }`}>
         {!isSidebarOpen && <NotesPanel />}
       </div>
 
       {/* ── Main Chat Column ── */}
       <div className="flex-1 flex flex-col relative overflow-hidden min-w-0 bg-[#060913]/95" style={{ height: '100%', maxHeight: '100%' }}>
 
-        {/* Hover zone — invisible strip at top that reveals the header (desktop only) */}
-        <div
-          className="absolute top-0 left-0 right-0 z-30 hidden lg:block"
-          style={{ height: '4px' }}
-          onMouseEnter={() => setHeaderVisible(true)}
-        />
+        {/* ── Redesigned Mobile Header: Premium Glassmorphic Command Bar ── */}
+        <header className="mobile-header shrink-0 px-3 py-2.5 z-20 relative">
+          {/* Animated gradient border bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] nav-running-border" style={{ opacity: 0.8 }} />
 
-        {/* ── Redesigned Header: Unified Glassmorphic Command Bar ── */}
-        <header className="shrink-0 px-3 py-2 z-20 relative bg-[#07090f]/95 backdrop-blur-xl border-b border-white/[0.06]">
-          {/* Animated gradient accent line at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-[1.5px] nav-running-border" style={{ opacity: 0.7 }} />
-
-          <div className="flex items-center gap-2 max-w-full">
-
-            {/* Hamburger */}
+          <div className="flex items-center gap-2.5 max-w-full">
+            {/* Rounded hamburger button */}
             <button
               onClick={onToggleSidebar}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/8 transition-all duration-200 cursor-pointer shrink-0 border border-white/[0.06]"
+              className="mobile-header-hamburger shrink-0"
               aria-label="Toggle sidebar"
             >
-              <i className="fas fa-bars text-sm" />
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+                <rect y="0" width="18" height="2" rx="1" fill="currentColor" />
+                <rect y="6" width="14" height="2" rx="1" fill="currentColor" />
+                <rect y="12" width="10" height="2" rx="1" fill="currentColor" />
+              </svg>
             </button>
 
-            {/* Unified command capsule */}
-            <div className="flex-1 flex items-center rounded-2xl min-w-0 overflow-hidden border border-white/[0.07]"
-              style={{ background: 'rgba(10,13,25,0.9)' }}>
-
-              {/* Brand section */}
-              <div className="flex items-center gap-2 px-3 h-9 border-r border-white/[0.07] shrink-0">
-                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0"
-                  style={{ border: '1.5px solid rgba(139,92,246,0.5)', boxShadow: '0 0 8px rgba(139,92,246,0.35)' }}>
-                  <img src="/arc_ai_logo.png" alt="Arc AI" className="w-full h-full object-cover" />
+            {/* Glowing Logo + Model Selector capsule */}
+            <div className="flex-1 flex items-center rounded-2xl min-w-0 overflow-hidden mobile-header-capsule">
+              {/* Glowing Leonux logo */}
+              <div className="flex items-center gap-2 px-3 h-10 border-r border-white/[0.08] shrink-0">
+                <div className="mobile-logo-orb">
+                  <img src="/arc_ai_logo.png" alt="Leonux AI" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-xs font-extrabold text-white font-display tracking-tight hidden sm:block">
-                  Arc <span style={{ background: 'linear-gradient(90deg,#a78bfa,#38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span>
+                <span className="text-[11px] font-extrabold text-white font-display tracking-tight hidden sm:block">
+                  Leonux <span className="mobile-logo-ai-text">AI</span>
                 </span>
               </div>
-
-              {/* Divider dot */}
-              <span className="w-1 h-1 rounded-full bg-white/10 mx-1 shrink-0 hidden sm:block" />
 
               {/* Model selector — fills remaining space */}
               <div className="flex-1 min-w-0 px-1">
                 <MultiModelSelector selectedModel={selectedModel} onSelectModel={onSelectModel} />
               </div>
 
-              {/* Web search */}
+              {/* Globe / Language selector */}
               <button
                 onClick={() => onToggleWebSearch(!isWebSearchEnabled)}
-                className="flex items-center gap-1.5 h-9 px-3 border-l border-white/[0.07] transition-all duration-200 cursor-pointer shrink-0"
-                style={{ color: isWebSearchEnabled ? '#67e8f9' : '#475569', background: isWebSearchEnabled ? 'rgba(6,182,212,0.07)' : 'transparent' }}
-                title="Toggle Web Search"
+                className="mobile-header-globe shrink-0"
+                title="Toggle Web Search / Language"
               >
-                <i className="fas fa-globe text-xs" />
-                <span className="hidden md:inline text-[11px] font-bold">Web</span>
-                <span className="w-1.5 h-1.5 rounded-full"
-                  style={{ background: isWebSearchEnabled ? '#22d3ee' : '#334155', boxShadow: isWebSearchEnabled ? '0 0 5px #22d3ee' : 'none' }} />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                  <path d="M2 12h20" />
+                </svg>
+                <span className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${isWebSearchEnabled ? 'bg-cyan-400 shadow-[0_0_6px_#22d3ee]' : 'bg-slate-600'}`} />
               </button>
-
-              {/* Voice speed — desktop only */}
-              <div className="hidden lg:flex items-center gap-1 h-9 px-3 border-l border-white/[0.07] shrink-0">
-                <i className="fas fa-volume-up text-purple-400 text-[10px]" />
-                <select
-                  value={ttsSpeed}
-                  onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
-                  className="bg-transparent text-slate-500 hover:text-white text-[11px] font-semibold focus:outline-none cursor-pointer"
-                >
-                  <option value="0.75" className="bg-slate-900">0.75×</option>
-                  <option value="1.0" className="bg-slate-900">1×</option>
-                  <option value="1.25" className="bg-slate-900">1.25×</option>
-                  <option value="1.5" className="bg-slate-900">1.5×</option>
-                  <option value="2.0" className="bg-slate-900">2×</option>
-                </select>
-              </div>
             </div>
           </div>
         </header>
 
         {/* Main chat area — fills all space between header and footer */}
-        <main className="relative flex-1 overflow-hidden p-3 sm:p-4 md:p-6" style={{ minHeight: 0 }}>
-          <video
-            className="absolute inset-0 w-full h-full object-contain object-center z-0 pointer-events-none opacity-20"
-            style={{ transform: 'scale(1.8)', transformOrigin: 'center center' }}
-            autoPlay muted loop playsInline preload="auto"
-          >
-            <source src="/assets/infinity.mp4" type="video/mp4" />
-          </video>
+        <main className="relative flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+          {/* Background overlay */}
           <div
             className="absolute inset-0 z-0 pointer-events-none"
-            style={{ background: 'radial-gradient(circle at center, rgba(8, 12, 24, 0.5) 0%, rgba(4, 6, 12, 0.75) 100%)' }}
+            style={{ background: 'radial-gradient(circle at 50% 45%, rgba(80,30,180,0.12) 0%, rgba(4, 6, 12, 0.6) 70%)' }}
           />
-          <div className="relative z-10 h-full overflow-y-auto custom-scrollbar flex flex-col">
+
+          <div className="relative z-10 h-full overflow-y-auto custom-scrollbar flex flex-col" style={{ padding: '0.75rem 0.75rem 0.5rem' }}>
             {messages.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-end text-center max-w-4xl mx-auto px-2 sm:px-4 pb-8 sm:pb-12 animate-fade-in-up">
-                <div className="space-y-3 sm:space-y-4">
-                  <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white font-display tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] leading-tight">
-                    What would you like to build today?
+              /* ── Welcome Screen ── */
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-4 animate-fade-in-up" style={{ minHeight: 0 }}>
+                {/* ── Infinity SVG Animation ── */}
+                <div className="infinity-container" aria-hidden="true">
+                  <svg
+                    className="infinity-svg"
+                    viewBox="0 0 500 220"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <defs>
+                      {/* Purple-to-blue gradient for static glow */}
+                      <linearGradient id="infinityGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.9" />
+                        <stop offset="40%" stopColor="#A855F7" stopOpacity="1" />
+                        <stop offset="70%" stopColor="#6366F1" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.9" />
+                      </linearGradient>
+
+                      {/* Travelling light gradient */}
+                      <linearGradient id="travelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#38BDF8" stopOpacity="0" />
+                        <stop offset="40%" stopColor="#A78BFA" stopOpacity="0" />
+                        <stop offset="60%" stopColor="#FFFFFF" stopOpacity="1" />
+                        <stop offset="80%" stopColor="#38BDF8" stopOpacity="0.6" />
+                        <stop offset="100%" stopColor="#38BDF8" stopOpacity="0" />
+                      </linearGradient>
+
+                      {/* Outer glow blur filter */}
+                      <filter id="infinityGlow" x="-20%" y="-60%" width="140%" height="220%">
+                        <feGaussianBlur stdDeviation="6" result="blur1" />
+                        <feGaussianBlur stdDeviation="14" result="blur2" />
+                        <feMerge>
+                          <feMergeNode in="blur2" />
+                          <feMergeNode in="blur1" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                      <filter id="travelGlow" x="-20%" y="-60%" width="140%" height="220%">
+                        <feGaussianBlur stdDeviation="4" result="glow" />
+                        <feMerge>
+                          <feMergeNode in="glow" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+
+                      {/* Path for travel animation */}
+                      <path
+                        id="infinityPath"
+                        d="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      />
+                    </defs>
+
+                    {/* Outer ambient glow layer */}
+                    <path
+                      d="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      stroke="rgba(120,50,220,0.35)"
+                      strokeWidth="22"
+                      fill="none"
+                      filter="url(#infinityGlow)"
+                    />
+
+                    {/* Core infinity path — purple-to-blue gradient */}
+                    <path
+                      d="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      stroke="url(#infinityGrad1)"
+                      strokeWidth="5"
+                      fill="none"
+                      strokeLinecap="round"
+                      filter="url(#infinityGlow)"
+                    />
+
+                    {/* Inner sharper core */}
+                    <path
+                      d="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      stroke="rgba(200,160,255,0.6)"
+                      strokeWidth="1.5"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
+
+                    {/* ── Travelling light particle 1 ── */}
+                    <circle r="5" fill="#FFFFFF" filter="url(#travelGlow)" opacity="0.95">
+                      <animateMotion
+                        dur="3.5s"
+                        repeatCount="indefinite"
+                        path="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      />
+                    </circle>
+
+                    {/* Comet tail 1 */}
+                    <circle r="3.5" fill="#A78BFA" filter="url(#travelGlow)" opacity="0.8">
+                      <animateMotion
+                        dur="3.5s"
+                        repeatCount="indefinite"
+                        keyPoints="0;1"
+                        keyTimes="0;1"
+                        calcMode="linear"
+                        begin="-0.08s"
+                        path="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      />
+                    </circle>
+
+                    <circle r="2" fill="#38BDF8" opacity="0.6">
+                      <animateMotion
+                        dur="3.5s"
+                        repeatCount="indefinite"
+                        keyPoints="0;1"
+                        keyTimes="0;1"
+                        calcMode="linear"
+                        begin="-0.16s"
+                        path="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      />
+                    </circle>
+
+                    {/* ── Travelling light particle 2 (offset by half) ── */}
+                    <circle r="4.5" fill="#38BDF8" filter="url(#travelGlow)" opacity="0.9">
+                      <animateMotion
+                        dur="3.5s"
+                        repeatCount="indefinite"
+                        keyPoints="0;1"
+                        keyTimes="0;1"
+                        calcMode="linear"
+                        begin="-1.75s"
+                        path="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      />
+                    </circle>
+
+                    <circle r="3" fill="#C4B5FD" filter="url(#travelGlow)" opacity="0.7">
+                      <animateMotion
+                        dur="3.5s"
+                        repeatCount="indefinite"
+                        keyPoints="0;1"
+                        keyTimes="0;1"
+                        calcMode="linear"
+                        begin="-1.83s"
+                        path="M250,110 C250,60 310,30 360,55 C410,80 430,110 410,140 C390,170 350,170 310,150 C280,133 250,110 220,90 C190,70 150,50 110,65 C70,80 60,110 70,140 C80,170 120,180 160,165 C200,150 230,130 250,110 Z"
+                      />
+                    </circle>
+
+                    {/* Subtle glowing particles — decorative dots */}
+                    <circle cx="250" cy="110" r="2.5" fill="#A78BFA" opacity="0.5">
+                      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" />
+                      <animate attributeName="r" values="2;3.5;2" dur="2s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx="360" cy="55" r="2" fill="#38BDF8" opacity="0.6">
+                      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.5s" repeatCount="indefinite" begin="-0.8s" />
+                    </circle>
+                    <circle cx="110" cy="65" r="1.8" fill="#8B5CF6" opacity="0.5">
+                      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite" begin="-1.2s" />
+                    </circle>
+                  </svg>
+                </div>
+
+                {/* ── Welcome Text (overlaid in front of infinity) ── */}
+                <div className="welcome-text-block">
+                  <h1 className="welcome-heading">
+                    What would you like to{' '}
+                    <span className="welcome-build-word">build</span>
+                    {' '}today?
                   </h1>
-                  <p className="text-xs sm:text-sm md:text-base text-slate-300 font-light tracking-wide max-w-xl mx-auto leading-relaxed">
+                  <p className="welcome-subtitle">
                     Select a flagship model above or launch one of our high-speed neural prompts below.
                   </p>
                 </div>
@@ -408,52 +530,69 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           </div>
         </main>
 
-        {/* Footer input — sits at the bottom, stays above the mobile bottom nav */}
-        <footer className="chat-footer-mobile-clearance shrink-0 relative z-20 px-2 pt-3 pb-2 sm:px-3 sm:pt-4 md:px-6 md:pt-5 lg:pb-4 lg:mb-0"
+        {/* Footer input */}
+        <footer className="shrink-0 relative z-20 px-3 pt-2 pb-2 lg:px-6 lg:pt-4 lg:pb-4"
           style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))' }}
         >
           {attachedImage && (
-            <div className="mb-2 sm:mb-3 inline-flex items-center gap-2 glass-pill px-3 py-1.5 rounded-xl border border-cyan-400/40 animate-fade-in-up shadow-lg bg-slate-900/90">
-              <img src={attachedImage} alt="" className="w-7 h-7 sm:w-8 sm:h-8 object-cover rounded-lg border border-cyan-400/50" />
+            <div className="mb-2 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-cyan-400/40 animate-fade-in-up bg-slate-900/90 backdrop-blur-sm">
+              <img src={attachedImage} alt="" className="w-7 h-7 object-cover rounded-lg border border-cyan-400/50" />
               <span className="text-xs text-cyan-300 font-semibold">Image Attached</span>
-              <button onClick={() => setAttachedImage(null)} className="text-slate-400 hover:text-white text-xs ml-1 transition-colors duration-300 cursor-pointer">
+              <button onClick={() => setAttachedImage(null)} className="text-slate-400 hover:text-white text-xs ml-1 transition-colors cursor-pointer">
                 <i className="fas fa-times" />
               </button>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative">
-            <div className="input-lightning-border relative rounded-2xl bg-gradient-to-r from-purple-500/40 via-cyan-500/40 to-blue-500/40 p-[1.5px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] focus-within:shadow-[0_0_30px_rgba(139,92,246,0.4)] transition-all duration-300">
-              <div className="bg-[#0B101E]/95 backdrop-blur-2xl rounded-[15px] px-2 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2">
+            {/* Neon pill input border */}
+            <div className="chat-input-pill">
+              <div className="chat-input-pill-inner">
+                {/* Attachment icon */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl glass-button text-slate-400 hover:text-cyan-300 flex items-center justify-center transition-colors duration-300 shrink-0 cursor-pointer"
-                  title="Attach Image"
+                  className="chat-input-icon-btn"
+                  title="Attach file"
                 >
-                  <i className="fas fa-paperclip text-sm" />
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                  </svg>
                 </button>
                 <input ref={fileInputRef} type="file" accept="image/*,application/pdf,.txt,.md,.csv" onChange={handleImageUpload} className="hidden" />
 
+                {/* Image icon */}
                 <button
                   type="button"
                   onClick={handleToggleVoiceSTT}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0 cursor-pointer ${
-                    isListening ? 'bg-red-500 text-white animate-pulse shadow-[0_0_24px_rgba(239,68,68,0.6)]' : 'glass-button text-slate-400 hover:text-purple-300'
-                  }`}
-                  title="Speech-to-Text"
+                  className={`chat-input-icon-btn ${isListening ? 'chat-input-icon-btn--listening' : ''}`}
+                  title="Voice input"
                 >
-                  <i className={`fas fa-microphone text-sm ${isListening ? 'animate-bounce' : ''}`} />
+                  {isListening ? (
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" />
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="currentColor" strokeWidth="2" />
+                      <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" strokeWidth="2" />
+                      <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" strokeWidth="2" />
+                    </svg>
+                  ) : (
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <path d="m21 15-5-5L5 21" />
+                    </svg>
+                  )}
                 </button>
 
+                {/* Message input */}
                 <textarea
                   rows={1}
-                  placeholder="Ask Arc AI anything... (Shift+Enter for newline)"
+                  placeholder="Type your message..."
                   value={input}
                   onChange={(e) => {
                     setInput(e.target.value);
                     e.target.style.height = 'auto';
-                    e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+                    e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px';
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -466,17 +605,21 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
                       }
                     }
                   }}
-                  className="flex-1 bg-transparent border-none text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none px-2 font-sans resize-none overflow-y-auto leading-relaxed"
-                  style={{ maxHeight: '160px' }}
+                  className="flex-1 bg-transparent border-none text-sm text-white placeholder:text-slate-500 focus:outline-none px-2 font-sans resize-none overflow-y-auto leading-relaxed"
+                  style={{ maxHeight: '140px', fontSize: '14px' }}
                 />
 
+                {/* Glowing send button */}
                 <button
                   type="submit"
                   disabled={isLoading || (!input.trim() && !attachedImage)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl btn-radiant text-white flex items-center justify-center transition-all duration-300 shrink-0 disabled:opacity-40 shadow-lg cursor-pointer hover:scale-105"
+                  className="chat-send-btn"
                   aria-label="Send message"
                 >
-                  <i className="fas fa-arrow-up text-sm font-bold" />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m22 2-7 20-4-9-9-4Z" />
+                    <path d="M22 2 11 13" />
+                  </svg>
                 </button>
               </div>
             </div>

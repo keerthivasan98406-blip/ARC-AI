@@ -17,6 +17,7 @@ interface SidebarProps {
   onOpenMemoryDrawer: () => void;
   onOpenAdminDashboard: () => void;
   onLogout: () => void;
+  onInstallApp?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -33,6 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenMemoryDrawer,
   onOpenAdminDashboard,
   onLogout,
+  onInstallApp,
 }) => {
   const [moreOpen, setMoreOpen] = useState(false);
   const [claimModalOpen, setClaimModalOpen] = useState(false);
@@ -241,6 +243,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <i className="fas fa-gift text-purple-300 text-xs group-hover:scale-110 transition-transform duration-300" />
               <span className="text-xs font-bold text-purple-200 group-hover:text-white tracking-wide">Claim Offer</span>
             </button>
+
+            {/* Install App Button — only shown when PWA install is available */}
+            {onInstallApp && (
+              <button
+                onClick={onInstallApp}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl border transition-all duration-300 group cursor-pointer"
+                style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(6,182,212,0.15))', borderColor: 'rgba(124,58,237,0.4)' }}
+              >
+                <i className="fas fa-download text-cyan-300 text-xs group-hover:scale-110 transition-transform duration-300" />
+                <span className="text-xs font-bold text-cyan-200 group-hover:text-white tracking-wide">Install App</span>
+              </button>
+            )}
 
             {/* Log Out Button */}
             <button

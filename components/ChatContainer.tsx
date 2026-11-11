@@ -274,7 +274,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
       </div>
 
       {/* ── Main Chat Column ── */}
-      <div className="flex-1 flex flex-col relative overflow-hidden min-w-0 bg-[#060913]/95" style={{ height: '100%' }}>
+      <div className="flex-1 flex flex-col relative overflow-hidden min-w-0 bg-[#060913]/95" style={{ height: '100%', maxHeight: '100%' }}>
 
         {/* Hover zone — invisible strip at top that reveals the header (desktop only) */}
         <div
@@ -354,8 +354,8 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           </div>
         </header>
 
-        {/* Main chat area */}
-        <main className="relative flex-1 overflow-hidden p-3 sm:p-4 md:p-6 min-h-0">
+        {/* Main chat area — fills all space between header and footer */}
+        <main className="relative flex-1 overflow-hidden p-3 sm:p-4 md:p-6" style={{ minHeight: 0 }}>
           <video
             className="absolute inset-0 w-full h-full object-contain object-center z-0 pointer-events-none opacity-20"
             style={{ transform: 'scale(1.8)', transformOrigin: 'center center' }}
@@ -408,15 +408,9 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           </div>
         </main>
 
-        {/* Footer input — extra bottom padding on mobile to clear the bottom nav bar */}
-        <footer className="shrink-0 relative z-20 p-2 sm:p-3 md:p-6"
-          style={{ paddingBottom: 'calc(72px + max(0.5rem, env(safe-area-inset-bottom)))' }}
-          onFocus={() => {
-            // On mobile, scroll footer into view when keyboard opens
-            setTimeout(() => {
-              (document.activeElement as HTMLElement)?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
-            }, 300);
-          }}
+        {/* Footer input — sits at the bottom, stays above the mobile bottom nav */}
+        <footer className="shrink-0 relative z-20 px-2 pt-2 pb-2 sm:px-3 sm:pt-3 md:px-6 md:pt-4 lg:pb-4"
+          style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))' }}
         >
           {attachedImage && (
             <div className="mb-2 sm:mb-3 inline-flex items-center gap-2 glass-pill px-3 py-1.5 rounded-xl border border-cyan-400/40 animate-fade-in-up shadow-lg bg-slate-900/90">

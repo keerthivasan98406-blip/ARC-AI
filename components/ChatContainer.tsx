@@ -369,7 +369,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           />
           <div className="relative z-10 h-full overflow-y-auto custom-scrollbar flex flex-col">
             {messages.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto px-2 sm:px-4 space-y-4 sm:space-y-6 animate-fade-in-up min-h-[200px]">
+              <div className="flex-1 flex flex-col items-center justify-end text-center max-w-4xl mx-auto px-2 sm:px-4 pb-8 sm:pb-12 animate-fade-in-up">
                 <div className="space-y-3 sm:space-y-4">
                   <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white font-display tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] leading-tight">
                     What would you like to build today?
@@ -409,7 +409,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         </main>
 
         {/* Footer input — sits at the bottom, stays above the mobile bottom nav */}
-        <footer className="shrink-0 relative z-20 px-2 pt-2 pb-2 sm:px-3 sm:pt-3 md:px-6 md:pt-4 lg:pb-4"
+        <footer className="shrink-0 relative z-20 px-2 pt-3 pb-2 sm:px-3 sm:pt-4 md:px-6 md:pt-5 lg:pb-4"
           style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))' }}
         >
           {attachedImage && (

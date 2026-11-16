@@ -1,27 +1,37 @@
 {
+  "id": "/",
   "name": "Arc AI Neural OS",
   "short_name": "Arc AI",
-  "description": "Next-Generation AI Assistant with Multi-Model Intelligence",
+  "description": "Next-Generation AI Assistant with Multi-Model Intelligence, Vision, Document Intelligence, Image Studio and Real-Time Web Search.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#08080F",
   "theme_color": "#08080F",
-  "orientation": "any",
-  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/arc_ai_logo.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/arc_ai_logo.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ],
-  "categories": ["productivity", "utilities"],
-  "screenshots": []
+  ]
 }

@@ -18,6 +18,7 @@ interface SidebarProps {
   onOpenAdminDashboard: () => void;
   onLogout: () => void;
   onInstallApp?: () => void;
+  isAppInstalled?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -35,6 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAdminDashboard,
   onLogout,
   onInstallApp,
+  isAppInstalled = false,
 }) => {
   const [moreOpen, setMoreOpen] = useState(false);
   const [claimModalOpen, setClaimModalOpen] = useState(false);
@@ -103,12 +105,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {onInstallApp && (
               <button
                 onClick={onInstallApp}
-                className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl font-bold text-xs text-cyan-200 cursor-pointer transition-all duration-300 hover:scale-[1.02] shrink-0"
-                style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(124,58,237,0.2))', border: '1px solid rgba(6,182,212,0.35)' }}
-                title="Install App"
+                className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl font-bold text-xs cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-98 shrink-0 ${
+                  isAppInstalled ? 'text-emerald-300' : 'text-cyan-200'
+                }`}
+                style={{
+                  background: isAppInstalled
+                    ? 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.15))'
+                    : 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(124,58,237,0.2))',
+                  border: isAppInstalled ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(6,182,212,0.35)',
+                }}
+                title={isAppInstalled ? 'Arc AI is installed on this device' : 'Install Arc AI on this device'}
               >
-                <i className="fas fa-download text-xs" />
-                <span>Install</span>
+                <i className={`fas ${isAppInstalled ? 'fa-circle-check' : 'fa-download'} text-xs`} />
+                <span>{isAppInstalled ? 'Installed' : 'Install'}</span>
               </button>
             )}
           </div>
@@ -249,7 +258,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
 
-          <div className="pt-3 border-t border-white/10 space-y-2 pb-[80px] lg:pb-0">
+          <div className="pt-3 border-t border-white/10 space-y-2">
             {/* Claim Offer Button */}
             <button
               onClick={() => setClaimModalOpen(true)}

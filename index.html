@@ -15,8 +15,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Arc AI">
-  <link rel="apple-touch-icon" href="/arc_ai_logo.png">
-  <link rel="manifest" href="/manifest.json">
+  <meta name="application-name" content="Arc AI">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180.png" />
+  <link rel="manifest" href="/manifest.json" />
   
   <meta property="og:title" content="Arc AI | Next-Gen Glassmorphic AI OS">
   <meta property="og:description" content="Production-grade AI Assistant OS powered by Multi-Model Engines">
@@ -28,6 +29,24 @@
   
   <!-- All styles are bundled locally via Vite — no CDN required, works offline -->
   <link rel="stylesheet" href="/sidebar-icons.css" />
+
+  <!--
+    Capture the PWA install prompt as early as possible. Chromium fires
+    "beforeinstallprompt" once, and it can land before React mounts — storing it
+    here guarantees the sidebar "Install" button can still trigger it later.
+  -->
+  <script>
+    window.__arcInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (event) {
+      event.preventDefault();
+      window.__arcInstallPrompt = event;
+      window.dispatchEvent(new Event('arc:install-prompt-ready'));
+    });
+    window.addEventListener('appinstalled', function () {
+      window.__arcInstallPrompt = null;
+      window.dispatchEvent(new Event('arc:app-installed'));
+    });
+  </script>
 </head>
 <body class="bg-[#030108] text-[#F8FAFC] font-sans antialiased overflow-hidden selection:bg-[#A855F7]/30 selection:text-white">
   <!-- cinematic-env is hidden until Tailwind loads to prevent unstyled flash -->

@@ -1,0 +1,5 @@
+- Global UI state (sessions, messages, memories, modal open flags) is lifted to `App.tsx` and passed down as props to child components rather than using context or stores.
+- User data persistence uses `localStorage` with explicit try/catch wrappers around every `getItem`/`setItem`/`removeItem` call, keyed by `arc_ai_*` prefixes.
+- Modal/drawer visibility is controlled by boolean `useState` flags plus an `isOpen` prop pattern shared across `StudyHubModal`, `ImageStudioModal`, `CodeVisualizerModal`, `MemoryDrawer`, and `AdminDashboardModal`.
+- Streaming responses are rendered by first inserting a placeholder message with `isStreaming: true`, then incrementally updating its `content` field until the final message is committed with `isStreaming: false`.
+- Component imports use relative paths into `./components/` and type/model imports come from the central `./types.ts` module instead of inline declarations.

@@ -1,0 +1,1 @@
+Development runs three processes concurrently via `npm run dev:all` (Vite dev server on port 3000 proxying `/api` → `http://127.0.0.1:5000`, plus `node server/index.js`); standalone backend start via `node start-server.js`. Production builds to `dist/` and is served statically on Render alongside a separate `arc-ai-backend` web service defined in `render.yaml`.

@@ -337,7 +337,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                     <img
                       src={part.image}
                       alt="Attachment"
-                      className="max-w-sm rounded-xl border border-white/20 shadow-md my-1"
+                      className="w-full max-w-[280px] sm:max-w-sm rounded-xl border border-white/20 shadow-md my-1 block"
+                      style={{ maxHeight: '320px', objectFit: 'contain' }}
                     />
                   )}
                 </div>

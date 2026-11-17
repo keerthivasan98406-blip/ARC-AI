@@ -106,7 +106,7 @@
   --glow-lg: 0 0 24px var(--neon-purple-glow-strong), 0 0 60px var(--neon-purple-glow);
   --glow-xl: 0 0 40px var(--neon-purple-glow-strong), 0 0 100px var(--neon-purple-glow);
 
-  /* ── Additional Accent Glow Tokens (cyan, red) ── */
+  /* ── Missing Accent Glow Tokens (cyan + red) ── */
   --neon-cyan: #22D3EE;
   --neon-cyan-glow: rgba(6, 182, 212, 0.45);
   --neon-cyan-glow-strong: rgba(6, 182, 212, 0.70);
@@ -126,10 +126,14 @@
 
 html {
   width: 100%;
+  height: 100%;
   min-width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -139,6 +143,7 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
+  height: 100%;
   min-width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
@@ -146,13 +151,17 @@ body {
   background-color: var(--bg-void);
   color: var(--text-main);
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 #root {
   width: 100%;
   min-width: 100%;
+  height: 100%;
   min-height: 100vh;
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
 }
@@ -161,13 +170,15 @@ body {
 .arc-app-shell {
   width: 100vw;
   min-width: 100vw;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  flex: 1 1 0%;
   margin: 0;
   padding: 0;
   overflow: hidden;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
 }
@@ -175,22 +186,25 @@ body {
 .arc-app-frame {
   width: 100%;
   min-width: 0;
-  min-height: 100%;
+  min-height: 0;
+  height: 100%;
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  flex: 1 1 auto;
+  flex: 1 1 0%;
+  overflow: hidden;
 }
 
 .arc-chat-panel {
-  flex: 1 1 auto;
+  flex: 1 1 0%;
   min-width: 0;
-  min-height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
+  overflow: hidden;
 }
 
 /* ── Responsive sidebar behavior ── */
@@ -910,6 +924,31 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 @keyframes borderGlow {
   0%, 100% { border-color: var(--glass-border-subtle); }
   50% { border-color: var(--glass-border-strong); }
@@ -949,6 +988,13 @@ body {
     transform: scale(1.06);
     filter: drop-shadow(0 0 26px rgba(198, 255, 0, 0.8)) drop-shadow(0 0 52px rgba(155, 140, 255, 0.5));
   }
+}
+
+/* ── Card hover: scale-up + shadow lift ── */
+.glass-card:hover {
+  transform: translateY(-2px) scale(1.005);
+  border-color: var(--glass-border-strong);
+  box-shadow: var(--glass-shadow-elevated), var(--glass-shadow-glow-red), var(--glass-inset-highlight);
 }
 
 /* ── Neon-red focus ring ── */
@@ -1036,20 +1082,20 @@ body {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
-  /* Keep scroll-behavior: smooth — it's native and doesn't cause vestibular issues */
 }
 
 /* ============================================================
    CUSTOM SCROLLBARS
    ============================================================ */
 
-/* Smooth scrolling for all scrollable containers */
+/* Mobile momentum scrolling */
 .custom-scrollbar {
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Mobile: prevent any child from blowing out the page width ── */
+/* ── Mobile: prevent children blowing out page width ── */
 @media (max-width: 1023px) {
   .arc-app-shell,
   .arc-app-frame {
@@ -1579,7 +1625,7 @@ input[type="checkbox"] {
   }
 }
 
-/* ── Mobile: chat frame fills full viewport height (no phantom bottom nav gap) ── */
+/* ── Mobile bottom nav clearance — ensure content never hides behind fixed bottom nav ── */
 @media (max-width: 1023px) {
   .arc-app-frame {
     padding-bottom: 0 !important;

@@ -1,0 +1,1 @@
+Vite + React frontend shell for the Arc AI OS glassmorphic assistant, wiring chat sessions, multimodal inputs, study/image/code modals, and a local-memory drawer to Gemini/OpenRouter backends.

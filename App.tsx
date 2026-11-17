@@ -7,35 +7,94 @@ import { ImageStudioModal } from './components/ImageStudioModal';
 import { CodeVisualizerModal } from './components/CodeVisualizerModal';
 import { MemoryDrawer } from './components/MemoryDrawer';
 import { AdminDashboardModal } from './components/AdminDashboardModal';
+import { InstallAppModal } from './components/InstallAppModal';
 import { FloatingAssistantButton } from './components/FloatingAssistantButton';
 import { Message, MessageRole, ModelEngine, ChatSession, MemoryItem } from './types';
 import { chatWithArcAi } from './services/geminiService';
 
 const App: React.FC = () => {
-  // ── PWA Install Prompt ─────────────────────────────────────
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
-  const [showInstallBanner, setShowInstallBanner] = useState(false);
+  // ── PWA Install ────────────────────────────────────────────
+  // "beforeinstallprompt" is captured in index.html before React mounts, so we
+  // read the stashed event here instead of depending on a late one-shot listener.
+  const [installPrompt, setInstallPrompt] = useState<any>(() =>
+    typeof window !== 'undefined' ? (window as any).__arcInstallPrompt ?? null : null
+  );
+  const [isAppInstalled, setIsAppInstalled] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true
+    );
+  });
+  const [isInstallHelpOpen, setIsInstallHelpOpen] = useState(false);
+  const [installNotice, setInstallNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-      // Show banner if not already installed
-      if (!window.matchMedia('(display-mode: standalone)').matches) {
-        setShowInstallBanner(true);
+    const onPromptReady = () => setInstallPrompt((window as any).__arcInstallPrompt ?? null);
+    const onInstalled = () => {
+      setInstallPrompt(null);
+      setIsAppInstalled(true);
+      setIsInstallHelpOpen(false);
+      setInstallNotice('Arc AI is installed. Launch it from your desktop or app drawer.');
+    };
+
+    const displayMode = window.matchMedia('(display-mode: standalone)');
+    const onDisplayModeChange = (event: MediaQueryListEvent) => setIsAppInstalled(event.matches);
+
+    window.addEventListener('arc:install-prompt-ready', onPromptReady);
+    window.addEventListener('arc:app-installed', onInstalled);
+    if (typeof displayMode.addEventListener === 'function') {
+      displayMode.addEventListener('change', onDisplayModeChange);
+    }
+
+    return () => {
+      window.removeEventListener('arc:install-prompt-ready', onPromptReady);
+      window.removeEventListener('arc:app-installed', onInstalled);
+      if (typeof displayMode.removeEventListener === 'function') {
+        displayMode.removeEventListener('change', onDisplayModeChange);
       }
     };
-    window.addEventListener('beforeinstallprompt', handler as EventListener);
-    return () => window.removeEventListener('beforeinstallprompt', handler as EventListener);
   }, []);
 
+  // Auto-dismiss the install status toast
+  useEffect(() => {
+    if (!installNotice) return;
+    const timer = setTimeout(() => setInstallNotice(null), 5000);
+    return () => clearTimeout(timer);
+  }, [installNotice]);
+
   const handleInstallApp = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') {
+    if (isAppInstalled) {
+      setInstallNotice('Arc AI is already installed on this device.');
+      return;
+    }
+
+    const deferred: any = installPrompt || (window as any).__arcInstallPrompt;
+
+    // iOS Safari / Firefox / already-consumed prompt: guide the user manually
+    // instead of silently doing nothing.
+    if (!deferred) {
+      setIsInstallHelpOpen(true);
+      return;
+    }
+
+    try {
+      deferred.prompt();
+      const choice = await deferred.userChoice;
+      (window as any).__arcInstallPrompt = null;
       setInstallPrompt(null);
-      setShowInstallBanner(false);
+
+      if (choice?.outcome === 'accepted') {
+        setIsAppInstalled(true);
+        setInstallNotice('Installing Arc AI — launch it from your desktop or app drawer.');
+      } else {
+        // Dismissed: the browser will not let us re-prompt, so offer the manual route.
+        setIsInstallHelpOpen(true);
+      }
+    } catch {
+      (window as any).__arcInstallPrompt = null;
+      setInstallPrompt(null);
+      setIsInstallHelpOpen(true);
     }
   };
   const loadSavedSessions = (): ChatSession[] => {
@@ -335,7 +394,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative w-screen bg-transparent p-0 arc-app-shell" style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div className="relative w-screen bg-transparent p-0 arc-app-shell" style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
       <AuroraBackground />
 
       {/* Main app frame — fills all space above the bottom nav */}
@@ -364,7 +423,8 @@ const App: React.FC = () => {
           onOpenMemoryDrawer={() => setIsMemoryDrawerOpen(true)}
           onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
           onLogout={handleLogout}
-          onInstallApp={installPrompt ? handleInstallApp : undefined}
+          onInstallApp={handleInstallApp}
+          isAppInstalled={isAppInstalled}
         />
 
         <ChatContainer
@@ -420,10 +480,26 @@ const App: React.FC = () => {
         onClose={() => setIsAdminDashboardOpen(false)}
       />
 
-      {/* Floating Assistant — desktop only */}
-      <div className="hidden lg:block">
-        <FloatingAssistantButton />
-      </div>
+      <InstallAppModal
+        isOpen={isInstallHelpOpen}
+        onClose={() => setIsInstallHelpOpen(false)}
+        canNativeInstall={Boolean(installPrompt)}
+        onTryNativeInstall={handleInstallApp}
+        isInstalled={isAppInstalled}
+      />
+
+      {/* Install status toast */}
+      {installNotice && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[80] px-4 py-2.5 rounded-2xl bg-[#0d1117]/95 backdrop-blur-xl border border-cyan-400/40 shadow-[0_0_30px_rgba(6,182,212,0.25)] animate-fade-in-up">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.9)]" />
+            <span className="text-[11px] font-semibold text-cyan-100 tracking-tight">{installNotice}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Assistant — desktop only, positioned fixed so it never affects layout */}
+      <FloatingAssistantButton />
 
     </div>
   );

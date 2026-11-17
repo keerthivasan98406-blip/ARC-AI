@@ -1,0 +1,32 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: en-US
+branch: main
+nodes_managed: true
+exported_at: "2026-11-16T08:51:06Z"
+modules:
+    "":
+        dir_name: Arc AI OS — React Frontend Shell
+        title: Arc AI OS — React Frontend Shell
+        scope:
+            - .gitignore
+            - App.tsx
+            - README.md
+            - index.css
+            - index.html
+            - index.tsx
+            - metadata.json
+            - package-lock.json
+            - package.json
+            - postcss.config.js
+            - render.yaml
+            - start-server.js
+            - tailwind.config.js
+            - tsconfig.json
+            - types.ts
+            - vite-env.d.ts
+            - vite.config.ts
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []

@@ -240,7 +240,7 @@ export const FloatingAssistantButton: React.FC<{ className?: string }> = ({ clas
   const [portalTarget, setPortalTarget] = useState<Element | null>(() => typeof document !== 'undefined' ? document.body : null);
 
   const abortRef      = useRef<AbortController | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef  = useRef<HTMLInputElement>(null);
   const textareaRef   = useRef<HTMLTextAreaElement>(null);
   const dragRef       = useRef({ active: false, startMouseX: 0, startMouseY: 0, startPanelX: 0, startPanelY: 0 });
@@ -270,9 +270,12 @@ export const FloatingAssistantButton: React.FC<{ className?: string }> = ({ clas
   // Load correct position on mount (after window dimensions are known)
   useEffect(() => { setPos(loadPos()); }, []);
 
-  // Scroll to bottom
+  // Scroll only this panel's message list — scrollIntoView() would also scroll
+  // overflow:hidden page ancestors and shift the main chat layout.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const area = messagesScrollRef.current;
+    if (!area) return;
+    area.scrollTo({ top: area.scrollHeight, behavior: 'smooth' });
   }, [messages, streamingText, isLoading]);
 
   // Clamp panel to viewport on window resize
@@ -512,7 +515,7 @@ export const FloatingAssistantButton: React.FC<{ className?: string }> = ({ clas
           </div>
 
           {/* Messages */}
-          <div style={{
+          <div ref={messagesScrollRef} style={{
             flex: 1, overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: 10,
           }}>
             {messages.length === 0 && !isLoading && (
@@ -548,8 +551,6 @@ export const FloatingAssistantButton: React.FC<{ className?: string }> = ({ clas
                 <TypingDots />
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Image preview */}

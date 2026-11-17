@@ -18,6 +18,7 @@ interface SidebarProps {
   onOpenAdminDashboard: () => void;
   onLogout: () => void;
   onInstallApp?: () => void;
+  isAppInstalled?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -35,6 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAdminDashboard,
   onLogout,
   onInstallApp,
+  isAppInstalled = false,
 }) => {
   const [moreOpen, setMoreOpen] = useState(false);
   const [claimModalOpen, setClaimModalOpen] = useState(false);
@@ -100,16 +102,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span>New Chat</span>
             </button>
 
-            {/* Install App — always visible */}
-            <button
-              onClick={onInstallApp ?? (() => alert('To install: open this app in Chrome/Edge on your phone or desktop, then tap the browser menu → "Add to Home Screen" or "Install App".'))}
-              className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl font-bold text-xs text-cyan-200 cursor-pointer transition-all duration-300 hover:scale-[1.02] shrink-0"
-              style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(124,58,237,0.2))', border: '1px solid rgba(6,182,212,0.35)' }}
-              title={onInstallApp ? 'Install App' : 'How to install'}
-            >
-              <i className="fas fa-download text-xs" />
-              <span>Install</span>
-            </button>
+            {onInstallApp && (
+              <button
+                onClick={onInstallApp}
+                className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl font-bold text-xs cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-98 shrink-0 ${
+                  isAppInstalled ? 'text-emerald-300' : 'text-cyan-200'
+                }`}
+                style={{
+                  background: isAppInstalled
+                    ? 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.15))'
+                    : 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(124,58,237,0.2))',
+                  border: isAppInstalled ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(6,182,212,0.35)',
+                }}
+                title={isAppInstalled ? 'Arc AI is installed on this device' : 'Install Arc AI on this device'}
+              >
+                <i className={`fas ${isAppInstalled ? 'fa-circle-check' : 'fa-download'} text-xs`} />
+                <span>{isAppInstalled ? 'Installed' : 'Install'}</span>
+              </button>
+            )}
           </div>
 
           {/* More Button */}

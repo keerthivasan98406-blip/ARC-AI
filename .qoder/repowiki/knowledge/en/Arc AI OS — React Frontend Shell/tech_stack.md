@@ -1,0 +1,1 @@
+React 19 + TypeScript 5.8 + Vite 6 build pipeline; Tailwind CSS 3 with PostCSS/Autoprefixer; Google Generative AI SDK (`@google/genai`, `@google/generative-ai`) for model calls; KaTeX for LaTeX rendering; Mammoth/PDF.js for document parsing; FontAwesome icons; deployed on Render as two services (Node backend + static frontend).

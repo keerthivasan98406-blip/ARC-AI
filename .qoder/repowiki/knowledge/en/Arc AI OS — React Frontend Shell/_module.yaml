@@ -1,0 +1,24 @@
+schema_version: 1
+module_path: ""
+title: Arc AI OS — React Frontend Shell
+scope:
+    - .gitignore
+    - App.tsx
+    - README.md
+    - index.css
+    - index.html
+    - index.tsx
+    - metadata.json
+    - package-lock.json
+    - package.json
+    - postcss.config.js
+    - render.yaml
+    - start-server.js
+    - tailwind.config.js
+    - tsconfig.json
+    - types.ts
+    - vite-env.d.ts
+    - vite.config.ts
+source_files: []
+depends_on: []
+related_to: []

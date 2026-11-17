@@ -11,6 +11,9 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      screens: {
+        'xs': '400px',
+      },
       colors: {
         'bg-void': '#08080F',
         'bg-dark': '#0E0E18',

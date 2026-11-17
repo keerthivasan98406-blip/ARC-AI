@@ -154,31 +154,31 @@ export const MessageItem: React.FC<MessageItemProps> = ({
             const currentIndex = codeIndexRef.current++;
             return (
               <div className="my-3 rounded-xl overflow-hidden border border-cyan-500/30 bg-slate-950 shadow-xl font-mono">
-                <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-white/[0.08] text-xs">
-                  <span className="text-cyan-400 font-bold uppercase tracking-widest text-[11px]">
+                <div className="flex flex-wrap items-center justify-between gap-1.5 px-3 py-2 bg-slate-900 border-b border-white/[0.08] text-xs">
+                  <span className="text-cyan-400 font-bold uppercase tracking-widest text-[11px] shrink-0">
                     <i className="fas fa-code mr-1.5" />
                     {language || 'code'}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     {onVisualizeCode && (
                       <button
                         onClick={() => onVisualizeCode(code)}
-                        className="px-2 py-1 rounded glass-button text-purple-300 border border-purple-500/30 transition-colors duration-300 text-[11px] flex items-center gap-1.5 font-sans"
+                        className="px-2 py-1 rounded glass-button text-purple-300 border border-purple-500/30 transition-colors duration-300 text-[10px] flex items-center gap-1 font-sans whitespace-nowrap"
                       >
-                        <i className="fas fa-project-diagram text-cyan-300" />
-                        <span>Visualize Flow</span>
+                        <i className="fas fa-project-diagram text-cyan-300 text-[9px]" />
+                        <span className="hidden xs:inline">Visualize</span>
                       </button>
                     )}
                     <button
                       onClick={() => handleCopyCode(code, currentIndex)}
-                      className="px-2.5 py-1 rounded glass-button text-slate-300 hover:text-cyan-300 transition-colors duration-300 text-[11px] flex items-center gap-1.5"
+                      className="px-2 py-1 rounded glass-button text-slate-300 hover:text-cyan-300 transition-colors duration-300 text-[10px] flex items-center gap-1 whitespace-nowrap"
                     >
-                      <i className={`fas ${copiedCodeIndex === currentIndex ? 'fa-check text-emerald-400' : 'fa-copy'}`} />
-                      {copiedCodeIndex === currentIndex ? 'Copied!' : 'Copy Code'}
+                      <i className={`fas ${copiedCodeIndex === currentIndex ? 'fa-check text-emerald-400' : 'fa-copy'} text-[9px]`} />
+                      <span>{copiedCodeIndex === currentIndex ? 'Copied!' : 'Copy'}</span>
                     </button>
                   </div>
                 </div>
-                <pre className="p-4 text-xs text-slate-200 overflow-x-auto leading-relaxed">
+                <pre className="p-3 sm:p-4 text-xs text-slate-200 overflow-x-auto leading-relaxed">
                   <code>{code}</code>
                 </pre>
               </div>
@@ -271,7 +271,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
   return (
     <div
-      className={`flex gap-3.5 my-4 group ${isUser ? 'justify-end' : 'justify-start'} ${isStreaming ? '' : 'animate-msg-enter'}`}
+      className={`flex gap-3.5 group ${isUser ? 'justify-end' : 'justify-start'} ${isStreaming ? '' : 'animate-msg-enter'}`}
     >
       {!isUser && (
         <div className="shrink-0 mt-0.5">
@@ -279,7 +279,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         </div>
       )}
 
-      <div className={`${isUser ? 'max-w-[85%] md:max-w-[70%]' : 'w-full max-w-[94%] sm:max-w-[85%] md:max-w-[75%]'} flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
+      <div className={`${isUser ? 'max-w-[82%] sm:max-w-[78%] md:max-w-[70%]' : 'min-w-0 w-full max-w-[92%] sm:max-w-[85%] md:max-w-[75%]'} flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
         <div className="flex items-center gap-2 mb-1 px-1 text-[11px] text-slate-400 font-mono">
           <span className="font-bold text-white font-display tracking-tight">
             {isUser ? 'You' : 'Arc AI'}
@@ -296,7 +296,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           className={`rounded-2xl relative shadow-lg transition-all duration-300 ${
             isUser
               ? 'btn-radiant text-white rounded-tr-none px-4 py-2.5 w-fit max-w-full'
-              : 'glass-card border border-white/12 text-slate-100 rounded-tl-none p-3.5 sm:p-4 w-fit max-w-full'
+              : 'glass-card border border-white/12 text-slate-100 rounded-tl-none p-3 sm:p-4 w-full overflow-hidden'
           }`}
         >
           {isEditing ? (
@@ -374,7 +374,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2 mt-1.5 px-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+        <div className="flex items-center gap-2 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-all duration-200 h-5">
           <button
             onClick={handleCopyMessage}
             className="text-slate-400 hover:text-white text-xs p-1 transition-colors duration-300"

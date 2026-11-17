@@ -100,17 +100,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span>New Chat</span>
             </button>
 
-            {onInstallApp && (
-              <button
-                onClick={onInstallApp}
-                className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl font-bold text-xs text-cyan-200 cursor-pointer transition-all duration-300 hover:scale-[1.02] shrink-0"
-                style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(124,58,237,0.2))', border: '1px solid rgba(6,182,212,0.35)' }}
-                title="Install App"
-              >
-                <i className="fas fa-download text-xs" />
-                <span>Install</span>
-              </button>
-            )}
+            {/* Install App — always visible */}
+            <button
+              onClick={onInstallApp ?? (() => alert('To install: open this app in Chrome/Edge on your phone or desktop, then tap the browser menu → "Add to Home Screen" or "Install App".'))}
+              className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl font-bold text-xs text-cyan-200 cursor-pointer transition-all duration-300 hover:scale-[1.02] shrink-0"
+              style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(124,58,237,0.2))', border: '1px solid rgba(6,182,212,0.35)' }}
+              title={onInstallApp ? 'Install App' : 'How to install'}
+            >
+              <i className="fas fa-download text-xs" />
+              <span>Install</span>
+            </button>
           </div>
 
           {/* More Button */}
@@ -249,7 +248,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
 
-          <div className="pt-3 border-t border-white/10 space-y-2 pb-[80px] lg:pb-0">
+          <div className="pt-3 border-t border-white/10 space-y-2">
             {/* Claim Offer Button */}
             <button
               onClick={() => setClaimModalOpen(true)}

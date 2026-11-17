@@ -184,12 +184,67 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [ttsSpeed, setTtsSpeed] = useState<number>(1.0);
   const [headerVisible, setHeaderVisible] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isNearBottomRef = useRef(true);
+  const rafRef = useRef<number | null>(null);
+  const lastScrollTimeRef = useRef(0);
+
+  const handleScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  };
+
+  const scrollToBottom = (instant = false) => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    if (instant) {
+      el.scrollTop = el.scrollHeight;
+      return;
+    }
+    // Throttle: skip if we already scrolled within the last 80ms
+    const now = Date.now();
+    if (now - lastScrollTimeRef.current < 80) return;
+    lastScrollTimeRef.current = now;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+      const target = container.scrollHeight - container.clientHeight;
+      const start = container.scrollTop;
+      const dist = target - start;
+      if (Math.abs(dist) < 2) return; // already at bottom
+      // Ease-out animation over 180ms using rAF loop
+      const duration = 180;
+      const startTime = performance.now();
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+        const c = scrollContainerRef.current;
+        if (c) c.scrollTop = start + dist * ease;
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isNearBottomRef.current) scrollToBottom();
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (messages.length === 1) {
+      isNearBottomRef.current = true;
+      scrollToBottom(true);
+    }
+  }, [messages.length]);
+
+  useEffect(() => {
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -355,7 +410,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         </header>
 
         {/* Main chat area — fills all space between header and footer */}
-        <main className="relative flex-1 overflow-hidden p-2 sm:p-3 md:p-4" style={{ minHeight: 0 }}>
+        <main className="relative flex-1 overflow-hidden" style={{ minHeight: 0 }}>
           <video
             className="absolute inset-0 w-full h-full object-contain object-center z-0 pointer-events-none opacity-20"
             style={{ transform: 'scale(1.8)', transformOrigin: 'center center' }}
@@ -367,10 +422,15 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
             className="absolute inset-0 z-0 pointer-events-none"
             style={{ background: 'radial-gradient(circle at center, rgba(8, 12, 24, 0.5) 0%, rgba(4, 6, 12, 0.75) 100%)' }}
           />
-          <div className="relative z-10 h-full overflow-y-auto custom-scrollbar flex flex-col">
+          <div
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+            className="relative z-10 h-full overflow-y-auto overflow-x-hidden custom-scrollbar"
+            style={{ overflowAnchor: 'auto', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          >
             {messages.length === 0 ? (
-              /* Empty state — welcome screen */
-              <div className="flex-1 flex flex-col items-center justify-center text-center max-w-4xl mx-auto px-2 sm:px-4 animate-fade-in-up">
+              /* Empty state — welcome screen: centred vertically */
+              <div className="h-full flex flex-col items-center justify-center text-center max-w-4xl mx-auto px-4 sm:px-6 animate-fade-in-up">
                 <div className="space-y-3 sm:space-y-4">
                   <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white font-display tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] leading-tight">
                     What would you like to build today?
@@ -381,41 +441,39 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
                 </div>
               </div>
             ) : (
-              /* Messages — grow to fill, then scroll; no extra spacer */
-              <div className="flex flex-col justify-end min-h-full">
-                <div className="space-y-4 py-2 px-1">
-                  {messages.map((msg) => (
-                    <MessageItem
-                      key={msg.id}
-                      message={msg}
-                      onSpeak={handleSpeakText}
-                      onDelete={onDeleteMessage}
-                      onRegenerate={onRegenerateLastResponse}
-                      onEdit={onEditMessage}
-                      onVisualizeCode={(code) => onOpenCodeVisualizer && onOpenCodeVisualizer(code)}
-                    />
-                  ))}
-                  {isLoading && (
-                    <div className="my-4 flex justify-center">
-                      <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 border border-white/10">
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" style={{ animationDelay: '0ms' }} />
-                        <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" style={{ animationDelay: '200ms' }} />
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }} />
-                        <span className="text-[11px] text-slate-400 font-mono tracking-widest ml-1">Thinking...</span>
-                      </div>
+              /* Messages list */
+              <div className="space-y-3 pt-3 pb-3 px-3 sm:px-4 md:px-6">
+                {messages.map((msg) => (
+                  <MessageItem
+                    key={msg.id}
+                    message={msg}
+                    onSpeak={handleSpeakText}
+                    onDelete={onDeleteMessage}
+                    onRegenerate={onRegenerateLastResponse}
+                    onEdit={onEditMessage}
+                    onVisualizeCode={(code) => onOpenCodeVisualizer && onOpenCodeVisualizer(code)}
+                  />
+                ))}
+                {isLoading && !(messages.length > 0 && messages[messages.length - 1].isStreaming) && (
+                  <div className="flex justify-center py-2">
+                    <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 border border-white/10">
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" style={{ animationDelay: '200ms' }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: '400ms' }} />
+                      <span className="text-[11px] text-slate-400 font-mono tracking-widest ml-1">Thinking...</span>
                     </div>
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} className="h-2" />
               </div>
             )}
-            {messages.length === 0 && <div ref={messagesEndRef} />}
           </div>
         </main>
 
         {/* Footer input */}
-        <footer className="shrink-0 relative z-20 px-2 pt-3 pb-2 sm:px-3 sm:pt-4 md:px-6 md:pt-5 md:pb-4"
-          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}
+        <footer
+          className="shrink-0 relative z-20 px-3 pt-2 pb-2 sm:px-4 sm:pt-3 md:px-6 md:pt-4"
+          style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))' }}
         >
           {attachedImage && (
             <div className="mb-2 sm:mb-3 inline-flex items-center gap-2 glass-pill px-3 py-1.5 rounded-xl border border-cyan-400/40 animate-fade-in-up shadow-lg bg-slate-900/90">

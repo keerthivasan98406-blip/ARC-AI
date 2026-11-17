@@ -3,46 +3,64 @@ import React from 'react';
 export const AuroraBackground: React.FC = () => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {/* Deep black base */}
+      {/* Deep black / midnight navy base */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(180deg, #08080F 0%, #0E0E18 50%, #05050A 100%)',
+          background: 'linear-gradient(170deg, #03020A 0%, #07051A 30%, #0A0618 60%, #04030E 100%)',
         }}
       />
 
-      {/* Soft purple ambient glow near top */}
+      {/* Large central purple bloom — the main ambient light */}
       <div
-        className="absolute -top-[30%] left-1/2 -translate-x-1/2 w-[70vw] h-[50vh] rounded-full opacity-[0.12]"
+        className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[90vw] h-[65vh] rounded-full"
         style={{
-          background: 'radial-gradient(ellipse, rgba(139,92,246,0.35) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(100,40,200,0.28) 0%, rgba(80,20,160,0.15) 40%, transparent 72%)',
+          filter: 'blur(90px)',
+        }}
+      />
+
+      {/* Electric blue highlight — top right */}
+      <div
+        className="absolute top-0 right-[5%] w-[50vw] h-[45vh] rounded-full"
+        style={{
+          background: 'radial-gradient(ellipse, rgba(56,100,255,0.18) 0%, rgba(30,80,220,0.08) 50%, transparent 75%)',
+          filter: 'blur(75px)',
+        }}
+      />
+
+      {/* Violet accent — bottom left */}
+      <div
+        className="absolute bottom-[5%] left-0 w-[55vw] h-[40vh] rounded-full"
+        style={{
+          background: 'radial-gradient(ellipse, rgba(120,40,220,0.20) 0%, rgba(80,20,180,0.08) 55%, transparent 80%)',
           filter: 'blur(80px)',
         }}
       />
 
-      {/* Subtle blue ambient light — right side */}
+      {/* Subtle blue floor glow */}
       <div
-        className="absolute top-[20%] right-[10%] w-[40vw] h-[40vh] rounded-full opacity-[0.08]"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80vw] h-[30vh] rounded-full"
         style={{
-          background: 'radial-gradient(ellipse, rgba(77,163,255,0.3) 0%, transparent 70%)',
-          filter: 'blur(70px)',
+          background: 'radial-gradient(ellipse, rgba(40,80,255,0.12) 0%, transparent 70%)',
+          filter: 'blur(60px)',
         }}
       />
 
-      {/* Subtle pink ambient light — left side */}
+      {/* Fine noise grain overlay for premium depth */}
       <div
-        className="absolute bottom-[10%] left-[5%] w-[35vw] h-[35vh] rounded-full opacity-[0.07]"
+        className="absolute inset-0 opacity-[0.025]"
         style={{
-          background: 'radial-gradient(ellipse, rgba(236,72,153,0.25) 0%, transparent 70%)',
-          filter: 'blur(70px)',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: '200px 200px',
         }}
       />
 
-      {/* Vignette around edges for depth */}
+      {/* Edge vignette for cinematic depth */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(0,0,0,0.6) 100%)',
+          background: 'radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0,0,0,0.65) 100%)',
         }}
       />
     </div>

@@ -72,7 +72,7 @@ export const MultiModelSelector: React.FC<MultiModelSelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-3 w-72 md:w-80 rounded-2xl p-2 shadow-2xl z-50 animate-fade-in-scale border border-white/15"
+        <div className="absolute top-full left-0 mt-2 w-72 md:w-80 rounded-2xl p-2 shadow-2xl z-[200] animate-fade-in-scale border border-white/15"
           style={{ background: 'rgba(8, 10, 20, 0.97)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }}
         >
           <div className="px-3 py-2 border-b border-white/12 flex items-center justify-between">

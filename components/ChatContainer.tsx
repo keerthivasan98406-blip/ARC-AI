@@ -339,7 +339,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         />
 
         {/* ── Redesigned Header: Unified Glassmorphic Command Bar ── */}
-        <header className="shrink-0 px-3 py-2 z-20 relative bg-[#07090f]/95 backdrop-blur-xl border-b border-white/[0.06]">
+        <header className="shrink-0 px-3 py-2 z-20 relative bg-[#07090f]/95 backdrop-blur-xl border-b border-white/[0.06]" style={{ overflow: 'visible' }}>
           {/* Animated gradient accent line at bottom */}
           <div className="absolute bottom-0 left-0 right-0 h-[1.5px] nav-running-border" style={{ opacity: 0.7 }} />
 
@@ -355,7 +355,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
             </button>
 
             {/* Unified command capsule */}
-            <div className="flex-1 flex items-center rounded-2xl min-w-0 overflow-hidden border border-white/[0.07]"
+            <div className="flex-1 flex items-center rounded-2xl min-w-0 border border-white/[0.07]"
               style={{ background: 'rgba(10,13,25,0.9)' }}>
 
               {/* Brand section */}

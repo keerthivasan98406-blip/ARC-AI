@@ -239,16 +239,20 @@ ${userContext}`;
   const candidateUrls = [
     `${API_URL}/chat`,
     'https://arc-ai-l0x5.onrender.com/api/chat',
-    'http://localhost:5000/api/chat',
-    'http://127.0.0.1:5000/api/chat'
   ];
+
+  // Only add local URLs if explicitly in dev mode on localhost
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    candidateUrls.push('http://localhost:5000/api/chat', 'http://127.0.0.1:5000/api/chat');
+  }
 
   const body = JSON.stringify({ messages: formattedMessages, stream: true, model: selectedModel, hasImage: !!imageBase64 });
 
   // Race all candidates — resolve with the first working Response
   const tryUrl = (url: string): Promise<Response> =>
     fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body })
-      .then(r => { if (!r.ok || !r.body) throw new Error(`HTTP ${r.status}`); return r; });
+      .then(r => { if (!r.ok || !r.body) throw new Error(`HTTP ${r.status}`); return r; })
+      .catch(e => { throw e; }); // suppress nothing — Promise.any handles rejection silently
 
   let response: Response;
   try {

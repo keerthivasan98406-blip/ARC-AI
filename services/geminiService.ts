@@ -235,7 +235,7 @@ ${userContext}`;
     ];
   }
 
-  // Route requests through API proxy with fallback to Render backend
+  // Try all backend URLs in parallel — first one to succeed wins (no sequential timeout stacking)
   const candidateUrls = [
     `${API_URL}/chat`,
     'https://arc-ai-l0x5.onrender.com/api/chat',
@@ -243,64 +243,56 @@ ${userContext}`;
     'http://127.0.0.1:5000/api/chat'
   ];
 
-  let lastError: Error | null = null;
+  const body = JSON.stringify({ messages: formattedMessages, stream: true, model: selectedModel, hasImage: !!imageBase64 });
 
-  for (const url of candidateUrls) {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: formattedMessages, stream: true, model: selectedModel, hasImage: !!imageBase64 })
-      });
+  // Race all candidates — resolve with the first working Response
+  const tryUrl = (url: string): Promise<Response> =>
+    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body })
+      .then(r => { if (!r.ok || !r.body) throw new Error(`HTTP ${r.status}`); return r; });
 
-      if (response.ok && response.body) {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullText = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter(l => l.trim() !== '');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') continue;
-
-              try {
-                const parsed = JSON.parse(data);
-                const content = parsed.choices[0]?.delta?.content;
-                if (content && !content.includes('ETIMEDOUT') && !content.includes('Network connection error')) {
-                  fullText += content;
-                  onChunk(fullText);
-                }
-              } catch (e) {
-                // Ignore partial JSON chunks
-              }
-            }
-          }
-        }
-
-        if (fullText.trim()) {
-          return { text: fullText, citations };
-        }
-      } else {
-        lastError = new Error(`Backend returned HTTP ${response.status}`);
-      }
-    } catch (err: unknown) {
-      lastError = err as Error;
-      // Continue to next candidate URL
-    }
+  let response: Response;
+  try {
+    response = await Promise.any(candidateUrls.map(tryUrl));
+  } catch {
+    const errorText = `⚠️ **Backend Server Not Running**\n\nArc AI cannot reach the backend. Start both servers with:\n\`\`\`\nnpm run dev:all\n\`\`\``;
+    onChunk(errorText);
+    return { text: errorText, citations };
   }
 
-  const isNetworkDown = lastError instanceof TypeError && lastError.message.includes('fetch');
-  const errorText = isNetworkDown
-    ? `⚠️ **Backend Server Not Running**\n\nArc AI cannot reach the local backend. Start both servers with:\n\`\`\`\nnpm run dev:all\n\`\`\`\nThis runs the Vite frontend (port 3000) and Node backend (port 5000) together.`
-    : `⚠️ **Connection Error**\n\n${lastError?.message ?? 'Unknown error'}`;
-  console.error('[geminiService] All backend candidates failed:', lastError);
+  try {
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n').filter(l => l.trim() !== '');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.choices[0]?.delta?.content;
+            if (content && !content.includes('ETIMEDOUT') && !content.includes('Network connection error')) {
+              fullText += content;
+              onChunk(fullText);
+            }
+          } catch { /* ignore partial JSON */ }
+        }
+      }
+    }
+
+    if (fullText.trim()) return { text: fullText, citations };
+  } catch (err) {
+    console.error('[geminiService] Stream read error:', err);
+  }
+
+  const errorText = `⚠️ **Connection Error**\n\nStream failed unexpectedly. Please try again.`;
   onChunk(errorText);
   return { text: errorText, citations };
 };

@@ -265,7 +265,14 @@ function executeGroqStream(messages, modelName = 'qwen/qwen3.8-27b', res) {
           : ''
     }));
 
-    if (!cleanMessages.some(m => m.role === 'system')) {
+    // Merge client's dynamic [SESSION CONTEXT] block into the main system prompt
+    // so we send one unified system message, keeping token overhead minimal.
+    const existingSystem = cleanMessages.find(m => m.role === 'system');
+    if (existingSystem) {
+      // If the client sent a lightweight session context, prepend it to the
+      // canonical Arc AI prompt. This keeps identity/knowledge base server-side.
+      existingSystem.content = `${ARC_AI_SYSTEM_PROMPT}\n\n${existingSystem.content}`;
+    } else {
       cleanMessages.unshift({ role: 'system', content: ARC_AI_SYSTEM_PROMPT });
     }
 
@@ -309,7 +316,7 @@ function executeGroqStream(messages, modelName = 'qwen/qwen3.8-27b', res) {
     });
 
     req.on('error', reject);
-    req.setTimeout(25000, () => { req.destroy(); reject(new Error('Groq stream request timeout')); });
+    req.setTimeout(15000, () => { req.destroy(); reject(new Error('Groq stream request timeout')); });
     req.write(data);
     req.end();
   });
